@@ -576,41 +576,24 @@ async function handleBarcode(text){
       return;
     }
 
-    // Normalizar: si viene { body:{...} } usar body; si viene array usar [0]
-    let data = raw.body ?? raw;
-    if(Array.isArray(data)) data = data[0];
+    // Si el Flow devuelve { body:{...} }, usamos body
+    const data = raw.body ?? raw;
 
-    // DEBUG amigable: mostrar claves por si algo sale mal
-    const keys = Object.keys(data || {});
-    console.log('Respuesta lookup:', data);
+    console.log('Respuesta del Flow:', data);
 
-    const codigo =
-      data.codigo   ??
-      data.CODIGO   ??
-      data.Codigo   ??
-      data.codigoBobina ??
-      data.SKU;
+    const codigo     = data.codigo;
+    const proveedor  = data.proveedor;
+    const cantidad   = data.cantidadSugerida;
 
-    const proveedor =
-      data.proveedor ??
-      data.PROVEEDOR ??
-      data.Proveedor;
-
-    const cantidad =
-      data.cantidadSugerida ??
-      data.cantidad ??
-      data.cantidadPorBobina ??
-      data.CANTIDAD ??
-      data.Cantidad;
-
+    // Si no vino "codigo", lo muestro crudo en pantalla para debug
     if(!codigo){
       lastResult.textContent =
-        'Respuesta sin código. Propiedades recibidas: ' + keys.join(', ');
+        'Respuesta sin código. JSON recibido: ' + JSON.stringify(data);
       return;
     }
 
     // rellenar formulario de escaneo
-    codigoScan.value = codigo.toUpperCase();
+    codigoScan.value = String(codigo).toUpperCase();
     codigoScan.readOnly = true;
     codigoScan.classList.add('readonly');
 
@@ -631,7 +614,7 @@ async function handleBarcode(text){
     lastResult.textContent = `OK (${text})`;
   }catch(e){
     console.error(e);
-    lastResult.textContent = 'Error en lookup';
+    lastResult.textContent = 'Error en lookup: ' + e.message;
   }
 }
 
@@ -643,4 +626,5 @@ resetScanForm();
 </script>
 </body>
 </html>
+
 
