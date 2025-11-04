@@ -3,196 +3,65 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Alta de Bobinas • Manual / Escaneo</title>
+<title>Altas de Bobinas • Manual / Escaneo</title>
 <style>
-:root{
-  --radius:14px;
-  --ink:#111827;
-  --muted:#4b5563;
-  --bg:#f6f7fb;
-  --ok:#065f46;
-  --err:#991b1b;
-}
-*{box-sizing:border-box}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background:linear-gradient(160deg,#f3f4f6,#f9fafb);
-  margin:0;
-  color:#1d2433;
-}
-.wrap{max-width:920px;margin:36px auto;padding:20px}
-.card{
-  background:#fff;
-  border-radius:var(--radius);
-  box-shadow:0 8px 24px rgba(0,0,0,.08);
-  padding:24px;
-}
-.title{font-size:28px;text-align:center;margin:0 0 8px}
-.subtitle{color:var(--muted);text-align:center;margin:0 0 10px}
-.strong-sub{font-weight:800;text-align:center;margin:0 0 10px}
-
-.nav{
-  display:flex;
-  gap:12px;
-  justify-content:center;
-  margin-bottom:16px;
-}
-.tab{
-  border:0;
-  background:#e5e7eb;
-  color:#111827;
-  padding:10px 14px;
-  border-radius:999px;
-  font-weight:700;
-  cursor:pointer;
-}
-.tab.primary{background:#111827;color:#fff}
-
-form{
-  display:grid;
-  grid-template-columns:repeat(12,1fr);
-  gap:16px;
-}
-.field{display:flex;flex-direction:column;gap:8px}
-.col-12{grid-column:span 12}
-.col-6{grid-column:span 6}
-.col-4{grid-column:span 4}
-
-label{font-weight:700;font-size:13.5px}
-.req{color:#dc2626;font-weight:800}
-
-input,select,textarea{
-  appearance:none;
-  width:100%;
-  padding:10px 12px;
-  border:1px solid #d1d5db;
-  border-radius:10px;
-  background:#fff;
-  font:inherit;
-  color:inherit;
-}
-textarea{min-height:86px;resize:vertical}
-input:focus,select:focus,textarea:focus{
-  outline:3px solid #dbeafe;
-  border-color:#93c5fd;
-}
-
-.help{font-size:12px;color:#6b7280}
-
-.actions{
-  grid-column:span 12;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  align-items:stretch;
-}
-
-.btn{
-  border:0;
-  border-radius:12px;
-  padding:14px 20px;
-  font-weight:800;
-  cursor:pointer;
-}
-.btn-primary{background:#111827;color:#fff}
-.btn-ghost{
-  background:#fee2e2;
-  color:#7f1d1d;
-  width:max-content;
-  align-self:center;
-  padding:8px 12px;
-  border-radius:10px;
-  font-weight:600;
-  font-size:12.5px;
-}
-
-.status{
-  display:none;
-  margin-top:6px;
-  padding:12px 14px;
-  border-radius:10px;
-}
-.ok{
-  background:#ecfdf5;
-  color:#065f46;
-  border:1px solid #10b98133;
-}
-.err{
-  background:#fef2f2;
-  color:#991b1b;
-  border:1px solid #ef444433;
-}
-
-.home-actions{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-  margin-top:10px;
-}
-.home-btn{
-  border:2px dashed #e5e7eb;
-  border-radius:14px;
-  padding:18px;
-  text-align:center;
-  cursor:pointer;
-  transition:all .15s;
-}
-.home-btn:hover{
-  transform:translateY(-1px);
-  box-shadow:0 10px 18px rgba(0,0,0,.08);
-}
-.home-btn h3{margin:0 0 6px}
-
-.scan-wrap{
-  display:grid;
-  grid-template-columns:2fr 1fr;
-  gap:16px;
-}
-#video{
-  width:100%;
-  border-radius:14px;
-  background:#000;
-}
-.badge{
-  display:inline-block;
-  font-size:12px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#eef2ff;
-  border:1px solid #c7d2fe;
-  color:#3730a3;
-}
-.scan-controls{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.scan-controls button{
-  padding:10px 12px;
-  border-radius:10px;
-  border:0;
-  cursor:pointer;
-  font-weight:700;
-}
-.start{background:#111827;color:#fff}
-.stop{background:#e5e7eb;color:#111827}
-
-/* campos readonly del escáner */
-.readonly{
-  background:#fef2f2 !important;
-  border-color:#fecaca !important;
-  color:#7f1d1d;
-}
-
-@media(max-width:840px){
-  .scan-wrap{grid-template-columns:1fr}
-  .col-6,.col-4{grid-column:span 12}
-  .home-actions{grid-template-columns:1fr}
-}
+  :root { --radius:14px; --ink:#111827; --muted:#4b5563; --bg:#f6f7fb; --ok:#065f46; --err:#991b1b; }
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;background:linear-gradient(160deg,#f3f4f6,#f9fafb);margin:0;color:#1d2433}
+  .wrap{max-width: 920px; margin: 36px auto; padding: 20px}
+  .card{background:#fff; border-radius: var(--radius); box-shadow:0 8px 24px rgba(0,0,0,.08); padding:24px}
+  .title{font-size: 28px; text-align:center; margin:0 0 8px}
+  .subtitle{color:var(--muted); text-align:center; margin:0 0 10px}
+  .strong-sub{font-weight:800; text-align:center; margin:0 0 10px}
+  /* NAV */
+  .nav { display:flex; gap:12px; justify-content:center; margin-bottom:16px }
+  .tab { border:0; background:#e5e7eb; color:#111827; padding:10px 14px; border-radius:999px; font-weight:700; cursor:pointer }
+  .tab.primary { background:#111827; color:#fff }
+  /* GRID FORM */
+  form{display:grid; grid-template-columns: repeat(12,1fr); gap:16px}
+  .field{display:flex; flex-direction:column; gap:8px}
+  .col-12{grid-column:span 12} .col-6{grid-column:span 6} .col-4{grid-column:span 4}
+  label{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px}
+  .req{color:#dc2626; font-weight:800}
+  input[type="text"],input[type="number"],input[type="date"],select,textarea{
+    appearance:none; width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:10px; background:#fff; font:inherit; color:inherit
+  }
+  .field.required input,.field.required select{ background:#f9fafb; border-color:#9ca3af }
+  textarea{min-height:86px; resize:vertical}
+  input:focus,select:focus,textarea:focus{ outline:3px solid #dbeafe; border-color:#93c5fd }
+  .help{ font-size:12px; color:#6b7280 }
+  .actions{ grid-column: span 12; display:flex; flex-direction:column; gap:10px; align-items:stretch }
+  .btn{ border:0; border-radius:12px; padding:14px 20px; font-weight:800; cursor:pointer }
+  .btn-primary{ background:#111827; color:#fff }
+  .btn-ghost{ background:#fee2e2; color:#7f1d1d; width:max-content; align-self:center; padding:8px 12px; border-radius:10px; font-weight:600; font-size:12.5px }
+  .status{ display:none; margin-top:6px; padding:12px 14px; border-radius:10px }
+  .ok{ background:#ecfdf5; color:#065f46; border:1px solid #10b98133 }
+  .err{ background:#fef2f2; color:#991b1b; border:1px solid #ef444433 }
+  .footer{ font-size:12px; color:#6b7280 }
+  /* HOME */
+  .home-actions{ display:grid; grid-template-columns: repeat(2,1fr); gap:14px; margin-top:10px }
+  .home-btn{ border:2px dashed #e5e7eb; border-radius:14px; padding:18px; text-align:center; cursor:pointer; transition:all .15s }
+  .home-btn:hover{ transform: translateY(-1px); box-shadow:0 10px 18px rgba(0,0,0,.08) }
+  .home-btn h3{ margin:0 0 6px }
+  /* SCAN */
+  .scan-wrap{ display:grid; grid-template-columns: 2fr 1fr; gap:16px }
+  #video{ width:100%; border-radius:14px; background:#000 }
+  .badge{ display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:#eef2ff; border:1px solid #c7d2fe; color:#3730a3 }
+  .scan-controls{ display:flex; flex-direction:column; gap:10px }
+  .scan-controls button{ padding:10px 12px; border-radius:10px; border:0; cursor:pointer; font-weight:700 }
+  .start{ background:#111827; color:#fff }
+  .stop{ background:#e5e7eb; color:#111827 }
+  @media (max-width: 840px){
+    .scan-wrap{ grid-template-columns: 1fr }
+    .col-6,.col-4{ grid-column:span 12 }
+    .home-actions{ grid-template-columns: 1fr }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <!-- NAV / PESTAÑAS -->
   <div class="nav">
     <button class="tab primary" data-view="home">Inicio</button>
     <button class="tab" data-view="manual">Manual</button>
@@ -201,9 +70,10 @@ input:focus,select:focus,textarea:focus{
 
   <!-- HOME -->
   <section id="home" class="card">
-    <h1 class="title">Alta de Bobinas de Etiquetas</h1>
+    <h1 class="title">Alta De Bobinas De Etiquetas</h1>
     <p class="subtitle">Elegí cómo querés cargar los datos.</p>
     <p class="strong-sub">Cada bobina tendrá un ID único generado en Power Automate.</p>
+
     <div class="home-actions">
       <div class="home-btn" onclick="go('manual')">
         <h3>➊ Carga Manual</h3>
@@ -211,7 +81,7 @@ input:focus,select:focus,textarea:focus{
       </div>
       <div class="home-btn" onclick="go('scan')">
         <h3>➋ Escanear Código</h3>
-        <div class="help">Leer un Code128 con la cámara y autocompletar desde base de datos.</div>
+        <div class="help">Leer un Code128 con la cámara y autocompletar.</div>
       </div>
     </div>
   </section>
@@ -219,44 +89,60 @@ input:focus,select:focus,textarea:focus{
   <!-- MANUAL -->
   <section id="manual" class="card" hidden>
     <h2 class="title" style="font-size:24px">Alta Manual</h2>
-    <p class="subtitle">Complete los datos. Cada envío creará 1 bobina.</p>
+    <p class="subtitle">Complete los datos y al final seleccione cuántas bobinas idénticas desea crear.</p>
+    <p class="strong-sub">Cada bobina tendrá un ID único generado en Power Automate.</p>
 
-    <form id="form-bobinas-manual" novalidate>
+    <form id="form-bobinas" novalidate>
       <div class="field required col-4">
-        <label>CÓDIGO <span class="req">*</span></label>
-        <input id="codigo" type="text" required placeholder="Ej.: E0000000-A00000"/>
+        <label for="codigo">CÓDIGO <span class="req">*</span></label>
+        <input id="codigo" name="codigo" type="text" inputmode="latin" autocomplete="off" required placeholder="Ej.: E0000000-A00000" maxlength="64"/>
+        <span class="help">Se convertirá automáticamente a MAYÚSCULAS.</span>
       </div>
+
       <div class="field required col-4">
-        <label>CANTIDAD <span class="req">*</span></label>
-        <input id="cantidad" type="number" required placeholder="Ej.: 1000"/>
+        <label for="cantidad">CANTIDAD <span class="req">*</span></label>
+        <input id="cantidad" name="cantidad" type="number" min="1" step="1" required placeholder="Ej.: 1000"/>
       </div>
+
       <div class="field required col-4">
-        <label>PROVEEDOR <span class="req">*</span></label>
-        <select id="proveedor" required>
-          <option value="">Seleccione...</option>
+        <label for="numeroBobinas">NÚMERO DE BOBINAS <span class="req">*</span></label>
+        <input id="numeroBobinas" name="numeroBobinas" type="number" min="1" max="10" step="1" required placeholder="Ej.: 10"/>
+        <span class="help">Máximo permitido: 10.</span>
+      </div>
+
+      <div class="field required col-4">
+        <label for="proveedor">PROVEEDOR <span class="req">*</span></label>
+        <select id="proveedor" name="proveedor" required>
+          <option value="">Seleccione…</option>
           <option>VERTICALIZADA</option>
           <option>ETHIPRINT</option>
           <option>STAMPA</option>
           <option>ALMACEN CQ</option>
         </select>
       </div>
+
       <div class="field required col-4">
-        <label>UBICACIÓN <span class="req">*</span></label>
-        <input id="ubicacion" type="text" required placeholder="Ej.: A-C0-R0-N0"/>
+        <label for="ubicacion">UBICACIÓN <span class="req">*</span></label>
+        <input id="ubicacion" name="ubicacion" type="text" required placeholder="Ej.: A-C0-R0-N0" maxlength="120"/>
       </div>
+
       <div class="field required col-4">
-        <label>FECHA DE INGRESO <span class="req">*</span></label>
-        <input id="fechaIngreso" type="date" required/>
+        <label for="fechaIngreso">FECHA DE INGRESO <span class="req">*</span></label>
+        <input id="fechaIngreso" name="fechaIngreso" type="date" required/>
+        <span class="help">Formato ISO (yyyy-mm-dd).</span>
       </div>
+
       <div class="field col-12">
-        <label>OBSERVACIÓN</label>
-        <textarea id="observacion" placeholder="Texto libre (opcional)"></textarea>
+        <label for="observacion">OBSERVACIÓN</label>
+        <textarea id="observacion" name="observacion" placeholder="Texto libre (opcional)" maxlength="500"></textarea>
       </div>
+
       <div class="actions">
-        <button id="btnSubmitManual" class="btn btn-primary" type="submit">Enviar</button>
+        <button id="btnSubmit" class="btn btn-primary" type="submit">Enviar</button>
         <button class="btn-ghost" type="reset">Limpiar</button>
         <div id="statusOk" class="status ok"></div>
         <div id="statusErr" class="status err"></div>
+        <div class="footer">Campos marcados con <span class="req">*</span> son obligatorios.</div>
       </div>
     </form>
   </section>
@@ -264,367 +150,183 @@ input:focus,select:focus,textarea:focus{
   <!-- ESCANEO -->
   <section id="scan" class="card" hidden>
     <h2 class="title" style="font-size:24px">Escanear Código</h2>
-    <p class="subtitle">Apuntá al código de barras (Code128). Cuando lo detecte, se consulta la base y se completa el formulario de abajo.</p>
+    <p class="subtitle">Apuntá al código de barras (Code128). Cuando lo detecte, se completa el formulario.</p>
 
     <div class="scan-wrap">
       <div>
         <video id="video" playsinline></video>
-        <div style="margin-top:8px">
-          <span class="badge" id="scanStatus">Cámara detenida</span>
-        </div>
+        <div style="margin-top:8px"><span class="badge" id="scanStatus">Cámara detenida</span></div>
       </div>
       <div class="scan-controls">
-        <label>Cámara</label>
+        <label>Seleccionar cámara</label>
         <select id="cameras"></select>
         <button class="start" id="btnStart">Iniciar escaneo</button>
         <button class="stop" id="btnStop">Detener</button>
-        <div class="help">Formato: <strong>Code128</strong></div>
+        <div class="help">Formato objetivo: <strong>Code 128</strong>.</div>
         <div class="help">Resultado: <code id="lastResult">—</code></div>
+        <button class="start" onclick="go('manual')">Ir a carga manual</button>
       </div>
     </div>
-
-    <!-- Formulario de alta por escaneo -->
-    <hr style="margin:20px 0;border:none;border-top:1px solid #e5e7eb"/>
-    <form id="form-bobinas-scan" novalidate>
-      <div class="field required col-4">
-        <label>CÓDIGO <span class="req">*</span></label>
-        <input id="codigo_scan" type="text" required readonly class="readonly"
-               placeholder="Se completa al escanear"/>
-      </div>
-      <div class="field required col-4">
-        <label>CANTIDAD <span class="req">*</span></label>
-        <input id="cantidad_scan" type="number" required readonly class="readonly"
-               placeholder="Se completa al escanear"/>
-      </div>
-      <div class="field required col-4">
-        <label>PROVEEDOR <span class="req">*</span></label>
-        <select id="proveedor_scan" required disabled class="readonly">
-          <option value="">Se completa al escanear</option>
-          <option>VERTICALIZADA</option>
-          <option>ETHIPRINT</option>
-          <option>STAMPA</option>
-          <option>ALMACEN CQ</option>
-        </select>
-      </div>
-      <div class="field required col-4">
-        <label>UBICACIÓN <span class="req">*</span></label>
-        <input id="ubicacion_scan" type="text" required placeholder="Ej.: A-C0-R0-N0"/>
-      </div>
-      <div class="field required col-4">
-        <label>FECHA DE INGRESO <span class="req">*</span></label>
-        <input id="fechaIngreso_scan" type="date" required/>
-      </div>
-      <div class="field col-12">
-        <label>OBSERVACIÓN</label>
-        <textarea id="observacion_scan"
-                  placeholder="Texto libre (opcional)"></textarea>
-      </div>
-      <div class="actions">
-        <button id="btnSubmitScan" class="btn btn-primary" type="submit">Enviar</button>
-        <button class="btn-ghost" type="reset"
-                onclick="resetScanForm()">Limpiar</button>
-        <div id="statusOkScan" class="status ok"></div>
-        <div id="statusErrScan" class="status err"></div>
-      </div>
-    </form>
   </section>
+
 </div>
 
-<!-- ZXing -->
+<!-- ZXing para escaneo -->
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script>
-/* ========== CONFIG FLOWS ========== */
-const LOOKUP_FLOW_URL = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";   // <-- reemplazar
-const LOOKUP_API_KEY  = "super-clave-123";               // si usás x-api-key
-const FLOW_URL        = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";     // <-- reemplazar
+/* ===== Config de integración con el Flow ===== */
+const FLOW_URL = "PASTE_YOUR_FLOW_URL_HERE"; // Pega acá tu URL de Power Automate
+const API_KEY  = "";       // opcional: si usás x-api-key
+const MAX_BOBINAS = 10;
 
-/* ========== NAVEGACIÓN ========== */
-const views=['home','manual','scan'];
-function go(v){
-  views.forEach(x=>{
-    document.getElementById(x).hidden = (x!==v);
-  });
-  document.querySelectorAll('.tab').forEach(t=>{
-    t.classList.toggle('primary', t.dataset.view===v);
+/* ===== Navegación interna ===== */
+const views = ['home','manual','scan'];
+function go(view){
+  views.forEach(v=>{
+    document.getElementById(v).hidden = (v!==view);
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('primary', t.dataset.view===view));
   });
 }
-document.querySelectorAll('.tab')
-  .forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
 
-/* ========== UTILIDADES ========== */
-function showHtml(el,html){el.innerHTML=html;el.style.display='block';}
-function show(el,msg){el.textContent=msg;el.style.display='block';}
-function hide(el){el.textContent='';el.innerHTML='';el.style.display='none';}
+/* ===== Form Manual ===== */
+const form  = document.getElementById('form-bobinas');
+const btn   = document.getElementById('btnSubmit');
+const ok    = document.getElementById('statusOk');
+const err   = document.getElementById('statusErr');
+const codigo= document.getElementById('codigo');
+const fecha = document.getElementById('fechaIngreso');
 
-/* ========== FORM MANUAL ========== */
-const formManual   = document.getElementById('form-bobinas-manual');
-const okManual     = document.getElementById('statusOk');
-const errManual    = document.getElementById('statusErr');
-const btnManual    = document.getElementById('btnSubmitManual');
-const codigoManual = document.getElementById('codigo');
-const fechaManual  = document.getElementById('fechaIngreso');
-
-// fecha por defecto hoy
 const today = new Date();
-const isoToday = today.toISOString().split('T')[0];
-fechaManual.value = isoToday;
+const yyyy = today.getFullYear(), mm = String(today.getMonth()+1).padStart(2,'0'), dd = String(today.getDate()).padStart(2,'0');
+fecha.value = `${yyyy}-${mm}-${dd}`;
 
-// mayúsculas en código manual
-codigoManual.addEventListener('input',()=>{
-  codigoManual.value = codigoManual.value.toUpperCase();
-});
-function setBusy(btn,v){
-  btn.disabled = v;
-  btn.textContent = v ? 'Enviando…' : 'Enviar';
+codigo.addEventListener('input', ()=>{ codigo.value = codigo.value.toUpperCase().trimStart(); });
+codigo.addEventListener('blur',  ()=>{ codigo.value = codigo.value.trim().toUpperCase(); });
+
+function showHtml(el,html){ el.innerHTML=html; el.style.display='block'; }
+function show(el,msg){ el.textContent=msg; el.style.display='block'; }
+function hide(el){ el.textContent=''; el.innerHTML=''; el.style.display='none'; }
+function setBusy(v){ btn.disabled=v; btn.textContent= v?'Enviando…':'Enviar'; }
+function validateMax(n){
+  if(Number.isNaN(n)||n<1) return 'El número de bobinas debe ser un entero ≥ 1.';
+  if(n>MAX_BOBINAS) return `El máximo permitido es ${MAX_BOBINAS}.`;
+  return '';
 }
 
-formManual.addEventListener('submit', async e=>{
-  e.preventDefault(); hide(okManual); hide(errManual);
-  if(!formManual.checkValidity()){ formManual.reportValidity(); return; }
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault(); hide(ok); hide(err);
+  if(!form.checkValidity()){ form.reportValidity(); return; }
+  const n = parseInt(document.getElementById('numeroBobinas').value,10);
+  const msg = validateMax(n); if(msg){ show(err,msg); return; }
 
   const payload = {
-    codigo: codigoManual.value.trim().toUpperCase(),
-    cantidadPorBobina: +document.getElementById('cantidad').value,
+    codigo: document.getElementById('codigo').value.trim().toUpperCase(),
+    cantidadPorBobina: parseInt(document.getElementById('cantidad').value,10),
     proveedor: document.getElementById('proveedor').value,
-    fechaIngreso: fechaManual.value,
+    fechaIngreso: document.getElementById('fechaIngreso').value,
     ubicacion: document.getElementById('ubicacion').value.trim(),
     observacion: document.getElementById('observacion').value.trim(),
-    numeroBobinas: 1   // siempre 1 bobina
+    numeroBobinas: n
   };
-
-  setBusy(btnManual,true);
-  try{
-    const res = await fetch(FLOW_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if(!res.ok) throw new Error(data?.error || res.statusText);
-
-    const ids = Array.isArray(data?.ids) ? data.ids : [];
-    const cant = data?.creadas ?? (ids.length || 1);
-    let html = `✅ Se creó ${cant} bobina.`;
-    if(ids.length) html += `<br>IDs: ${ids.join(', ')}`;
-    showHtml(okManual, html);
-
-    formManual.reset();
-    fechaManual.value = isoToday;
-  }catch(e2){
-    show(errManual,`Error: ${e2.message}`);
-  }finally{
-    setBusy(btnManual,false);
+  if(!Number.isInteger(payload.cantidadPorBobina) || payload.cantidadPorBobina<1){
+    show(err,'CANTIDAD debe ser un entero ≥ 1.'); return;
   }
+  if(!FLOW_URL || FLOW_URL==='PASTE_YOUR_FLOW_URL_HERE'){ show(err,'⚠️ Configurá FLOW_URL en el código.'); return; }
+
+  setBusy(true);
+  try{
+    const headers = { 'Content-Type':'application/json' };
+    if(API_KEY) headers['x-api-key'] = API_KEY;
+    const res = await fetch(FLOW_URL,{ method:'POST', headers, body: JSON.stringify(payload) });
+    let data=null; const ct=res.headers.get('content-type')||'';
+    if(ct.includes('application/json')) data = await res.json();
+    if(!res.ok){ throw new Error(data?.error || data?.message || res.statusText || `HTTP ${res.status}`); }
+
+    const ids = Array.isArray(data?.ids)? data.ids : [];
+    const cantidad = Number.isFinite(data?.creadas)? data.creadas : (ids.length || payload.numeroBobinas);
+    let html = `✅ Se crearon correctamente <strong>${cantidad}</strong> bobina(s).`;
+    if(ids.length>0){ html += `<br><strong>IDs generados:</strong> ${ids.join(', ')}`; }
+    showHtml(ok, html);
+    form.reset(); fecha.value = `${yyyy}-${mm}-${dd}`;
+  }catch(e2){ show(err,`No se pudo enviar. Detalle: ${e2.message}`); }
+  finally{ setBusy(false); }
 });
 
-/* ========== FORM ESCANEO ========== */
-const formScan    = document.getElementById('form-bobinas-scan');
-const okScan      = document.getElementById('statusOkScan');
-const errScan     = document.getElementById('statusErrScan');
-const btnScan     = document.getElementById('btnSubmitScan');
-const codigoScan  = document.getElementById('codigo_scan');
-const cantScan    = document.getElementById('cantidad_scan');
-const provScan    = document.getElementById('proveedor_scan');
-const fechaScan   = document.getElementById('fechaIngreso_scan');
-fechaScan.value   = isoToday;
+/* ===== Escaneo con ZXing (Code128) ===== */
+const { BrowserMultiFormatReader, BarcodeFormat, DecodeHintType } = ZXing;
 
-function resetScanForm(){
-  codigoScan.value = '';
-  cantScan.value   = '';
-  provScan.value   = '';
-  provScan.selectedIndex = 0;
-  document.getElementById('ubicacion_scan').value = '';
-  document.getElementById('observacion_scan').value = '';
-  codigoScan.readOnly = cantScan.readOnly = true;
-  provScan.disabled = true;
-  codigoScan.classList.add('readonly');
-  cantScan.classList.add('readonly');
-  provScan.classList.add('readonly');
-}
-
-formScan.addEventListener('submit', async e=>{
-  e.preventDefault(); hide(okScan); hide(errScan);
-  if(!formScan.checkValidity()){ formScan.reportValidity(); return; }
-
-  const payload = {
-    codigo: codigoScan.value.trim().toUpperCase(),
-    cantidadPorBobina: +cantScan.value,
-    proveedor: provScan.value,
-    fechaIngreso: fechaScan.value,
-    ubicacion: document.getElementById('ubicacion_scan').value.trim(),
-    observacion: document.getElementById('observacion_scan').value.trim(),
-    numeroBobinas: 1   // siempre 1 bobina
-  };
-
-  setBusy(btnScan,true);
-  try{
-    const res = await fetch(FLOW_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if(!res.ok) throw new Error(data?.error || res.statusText);
-
-    const ids = Array.isArray(data?.ids) ? data.ids : [];
-    const cant = data?.creadas ?? (ids.length || 1);
-    let html = `✅ Se creó ${cant} bobina.`;
-    if(ids.length) html += `<br>IDs: ${ids.join(', ')}`;
-    showHtml(okScan, html);
-
-    formScan.reset();
-    fechaScan.value = isoToday;
-    resetScanForm();
-  }catch(e2){
-    show(errScan,`Error: ${e2.message}`);
-  }finally{
-    setBusy(btnScan,false);
-  }
-});
-
-/* ========== ESCANEO ZXing ========== */
-const {BrowserMultiFormatReader,BarcodeFormat,DecodeHintType} = ZXing;
-const video      = document.getElementById('video');
-const cams       = document.getElementById('cameras');
+const video = document.getElementById('video');
+const cams  = document.getElementById('cameras');
 const scanStatus = document.getElementById('scanStatus');
 const lastResult = document.getElementById('lastResult');
 
 const hints = new Map();
-hints.set(DecodeHintType.POSSIBLE_FORMATS,[BarcodeFormat.CODE_128]);
-
-// lector principal
+hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.CODE_128]);
 const codeReader = new BrowserMultiFormatReader(hints);
-let selectedDeviceId = null;
-let scanning = false;
+
+let currentDeviceId = null;
+let running = false;
 
 async function listCameras(){
-  const devs = await BrowserMultiFormatReader.listVideoInputDevices();
+  const devices = await BrowserMultiFormatReader.listVideoInputDevices();
   cams.innerHTML = '';
-  devs.forEach((d,i)=>{
-    const o = document.createElement('option');
-    o.value = d.deviceId;
-    o.textContent = d.label || `Cam ${i+1}`;
-    cams.appendChild(o);
+  devices.forEach((d,i)=>{
+    const opt=document.createElement('option');
+    opt.value=d.deviceId; opt.textContent=d.label||`Cámara ${i+1}`;
+    cams.appendChild(opt);
   });
-  if(devs[0]) selectedDeviceId = devs[0].deviceId;
+  if(devices[0]) currentDeviceId = devices[0].deviceId;
 }
-cams.addEventListener('change',()=> selectedDeviceId = cams.value);
+cams.addEventListener('change', ()=> currentDeviceId = cams.value );
 
 async function startScan(){
-  if(scanning) return;
-  scanning = true;
-  scanStatus.textContent = 'Escaneando…';
-
+  if(running) return;
+  running = true; scanStatus.textContent='Escaneando…';
   try{
-    await codeReader.decodeFromVideoDevice(
-      selectedDeviceId,
-      video,
-      (result,err)=>{
-        if(result){
-          const text = result.getText ? result.getText() : result.text;
-          handleBarcode(text);
-          stopScan();   // APAGAR CÁMARA APENAS LEE
-        }
+    await codeReader.decodeFromVideoDevice(currentDeviceId, video, (r,err)=>{
+      if(r){
+        const text = r.getText();
+        lastResult.textContent = text;
+        handleBarcode(text);
       }
-    );
-  }catch(e){
-    console.error(e);
-    scanStatus.textContent = 'Error al iniciar cámara';
-    scanning = false;
-  }
-}
-
-function stopScan(){
-  if(!scanning) return;
-  codeReader.reset();
-  const stream = video.srcObject;
-  if(stream){
-    stream.getTracks().forEach(t=>t.stop());
-    video.srcObject = null;
-  }
-  scanning = false;
-  scanStatus.textContent = 'Cámara detenida';
-}
-
-document.getElementById('btnStart').onclick = e=>{
-  e.preventDefault();
-  startScan();
-};
-document.getElementById('btnStop').onclick = e=>{
-  e.preventDefault();
-  stopScan();
-};
-
-/* ========== LOOKUP AL ESCANEAR ========== */
-async function handleBarcode(text){
-  lastResult.textContent = `Leyendo ${text}…`;
-
-  try{
-    const headers = {'Content-Type':'application/json'};
-    if(LOOKUP_API_KEY) headers['x-api-key'] = LOOKUP_API_KEY;
-
-    const res = await fetch(LOOKUP_FLOW_URL,{
-      method:'POST',
-      headers,
-      body: JSON.stringify({ idBobina: text.trim() })
     });
-
-    const raw = await res.json();
-
-    if(!res.ok){
-      lastResult.textContent = `Error HTTP ${res.status}`;
-      return;
-    }
-
-    // Si el Flow devuelve { body:{...} }, usamos body
-    const data = raw.body ?? raw;
-
-    console.log('Respuesta del Flow:', data);
-
-    const codigo     = data.codigo;
-    const proveedor  = data.proveedor;
-    const cantidad   = data.cantidadSugerida;
-
-    // Si no vino "codigo", lo muestro crudo en pantalla para debug
-    if(!codigo){
-      lastResult.textContent =
-        'Respuesta sin código. JSON recibido: ' + JSON.stringify(data);
-      return;
-    }
-
-    // rellenar formulario de escaneo
-    codigoScan.value = String(codigo).toUpperCase();
-    codigoScan.readOnly = true;
-    codigoScan.classList.add('readonly');
-
-    if(proveedor){
-      provScan.value = proveedor;
-      provScan.disabled = true;
-      provScan.classList.add('readonly');
-    }
-
-    if(cantidad != null){
-      cantScan.value = cantidad;
-      cantScan.readOnly = true;
-      cantScan.classList.add('readonly');
-    }
-
-    document.getElementById('ubicacion_scan').focus();
-    showHtml(okScan, `Datos cargados por escaneo del ID ${text}`);
-    lastResult.textContent = `OK (${text})`;
-  }catch(e){
-    console.error(e);
-    lastResult.textContent = 'Error en lookup: ' + e.message;
-  }
+  }catch(e){ scanStatus.textContent = 'Error iniciando cámara'; console.error(e); }
+}
+function stopScan(){
+  if(!running) return;
+  codeReader.reset();
+  running=false; scanStatus.textContent='Cámara detenida';
 }
 
+document.getElementById('btnStart').addEventListener('click', (e)=>{ e.preventDefault(); startScan(); });
+document.getElementById('btnStop').addEventListener('click',  (e)=>{ e.preventDefault(); stopScan();  });
 
-/* ========== INIT ========== */
+function handleBarcode(text){
+  // 1) Mapear campos a partir del código detectado
+  const mapped = autoMapFromBarcode(text);
+  // 2) Volcar en el formulario manual
+  if(mapped.codigo) { codigo.value = mapped.codigo.toUpperCase(); }
+  if(mapped.proveedor){ document.getElementById('proveedor').value = mapped.proveedor; }
+  if(mapped.cantidad){ document.getElementById('cantidad').value = mapped.cantidad; }
+  // 3) Pasar a la pantalla manual para completar UBICACIÓN y N° bobinas
+  stopScan();
+  go('manual');
+  document.getElementById('ubicacion').focus();
+}
+
+// Ajustá esta función a tu etiqueta real.
+// Por defecto: usa todo el texto como CÓDIGO.
+function autoMapFromBarcode(text){
+  // Ejemplo de reglas (dejadas como comentario por si te sirven):
+  // if(text.startsWith('E')) prov = 'ETHIPRINT';
+  // const m = text.match(/CANT(\d+)/); if(m) cant = parseInt(m[1],10);
+  return { codigo: text, proveedor: '', cantidad: '' };
+}
+
+// Inicialización
 go('home');
 listCameras().catch(console.error);
-resetScanForm();
 </script>
 </body>
 </html>
-
-
