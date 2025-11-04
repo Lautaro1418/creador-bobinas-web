@@ -219,7 +219,7 @@ input:focus,select:focus,textarea:focus{
   <!-- MANUAL -->
   <section id="manual" class="card" hidden>
     <h2 class="title" style="font-size:24px">Alta Manual</h2>
-    <p class="subtitle">Complete los datos y al final seleccione cuántas bobinas idénticas desea crear.</p>
+    <p class="subtitle">Complete los datos. Cada envío creará 1 bobina.</p>
 
     <form id="form-bobinas-manual" novalidate>
       <div class="field required col-4">
@@ -229,10 +229,6 @@ input:focus,select:focus,textarea:focus{
       <div class="field required col-4">
         <label>CANTIDAD <span class="req">*</span></label>
         <input id="cantidad" type="number" required placeholder="Ej.: 1000"/>
-      </div>
-      <div class="field required col-4">
-        <label>N° BOBINAS <span class="req">*</span></label>
-        <input id="numeroBobinas" type="number" min="1" max="10" required placeholder="Ej.: 10"/>
       </div>
       <div class="field required col-4">
         <label>PROVEEDOR <span class="req">*</span></label>
@@ -301,11 +297,6 @@ input:focus,select:focus,textarea:focus{
                placeholder="Se completa al escanear"/>
       </div>
       <div class="field required col-4">
-        <label>N° BOBINAS <span class="req">*</span></label>
-        <input id="numeroBobinas_scan" type="number" min="1" max="10"
-               required placeholder="Ej.: 10"/>
-      </div>
-      <div class="field required col-4">
         <label>PROVEEDOR <span class="req">*</span></label>
         <select id="proveedor_scan" required disabled class="readonly">
           <option value="">Se completa al escanear</option>
@@ -346,7 +337,6 @@ input:focus,select:focus,textarea:focus{
 const LOOKUP_FLOW_URL = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";   // <-- reemplazar
 const LOOKUP_API_KEY  = "super-clave-123";               // si usás x-api-key
 const FLOW_URL        = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";     // <-- reemplazar
-const MAX_BOBINAS     = 10;
 
 /* ========== NAVEGACIÓN ========== */
 const views=['home','manual','scan'];
@@ -392,9 +382,6 @@ formManual.addEventListener('submit', async e=>{
   e.preventDefault(); hide(okManual); hide(errManual);
   if(!formManual.checkValidity()){ formManual.reportValidity(); return; }
 
-  const n = parseInt(document.getElementById('numeroBobinas').value,10);
-  if(n>MAX_BOBINAS){ show(errManual,`Máx permitido ${MAX_BOBINAS}`); return; }
-
   const payload = {
     codigo: codigoManual.value.trim().toUpperCase(),
     cantidadPorBobina: +document.getElementById('cantidad').value,
@@ -402,7 +389,7 @@ formManual.addEventListener('submit', async e=>{
     fechaIngreso: fechaManual.value,
     ubicacion: document.getElementById('ubicacion').value.trim(),
     observacion: document.getElementById('observacion').value.trim(),
-    numeroBobinas: n
+    numeroBobinas: 1   // siempre 1 bobina
   };
 
   setBusy(btnManual,true);
@@ -416,8 +403,8 @@ formManual.addEventListener('submit', async e=>{
     if(!res.ok) throw new Error(data?.error || res.statusText);
 
     const ids = Array.isArray(data?.ids) ? data.ids : [];
-    const cant = data?.creadas ?? (ids.length || n);
-    let html = `✅ Se crearon ${cant} bobina(s).`;
+    const cant = data?.creadas ?? (ids.length || 1);
+    let html = `✅ Se creó ${cant} bobina.`;
     if(ids.length) html += `<br>IDs: ${ids.join(', ')}`;
     showHtml(okManual, html);
 
@@ -459,9 +446,6 @@ formScan.addEventListener('submit', async e=>{
   e.preventDefault(); hide(okScan); hide(errScan);
   if(!formScan.checkValidity()){ formScan.reportValidity(); return; }
 
-  const n = parseInt(document.getElementById('numeroBobinas_scan').value,10);
-  if(n>MAX_BOBINAS){ show(errScan,`Máx permitido ${MAX_BOBINAS}`); return; }
-
   const payload = {
     codigo: codigoScan.value.trim().toUpperCase(),
     cantidadPorBobina: +cantScan.value,
@@ -469,7 +453,7 @@ formScan.addEventListener('submit', async e=>{
     fechaIngreso: fechaScan.value,
     ubicacion: document.getElementById('ubicacion_scan').value.trim(),
     observacion: document.getElementById('observacion_scan').value.trim(),
-    numeroBobinas: n
+    numeroBobinas: 1   // siempre 1 bobina
   };
 
   setBusy(btnScan,true);
@@ -483,8 +467,8 @@ formScan.addEventListener('submit', async e=>{
     if(!res.ok) throw new Error(data?.error || res.statusText);
 
     const ids = Array.isArray(data?.ids) ? data.ids : [];
-    const cant = data?.creadas ?? (ids.length || n);
-    let html = `✅ Se crearon ${cant} bobina(s).`;
+    const cant = data?.creadas ?? (ids.length || 1);
+    let html = `✅ Se creó ${cant} bobina.`;
     if(ids.length) html += `<br>IDs: ${ids.join(', ')}`;
     showHtml(okScan, html);
 
@@ -507,9 +491,11 @@ const lastResult = document.getElementById('lastResult');
 
 const hints = new Map();
 hints.set(DecodeHintType.POSSIBLE_FORMATS,[BarcodeFormat.CODE_128]);
-const reader = new BrowserMultiFormatReader(hints);
-let currentDeviceId = null;
-let running = false;
+
+// lector principal
+const codeReader = new BrowserMultiFormatReader(hints);
+let selectedDeviceId = null;
+let scanning = false;
 
 async function listCameras(){
   const devs = await BrowserMultiFormatReader.listVideoInputDevices();
@@ -520,24 +506,43 @@ async function listCameras(){
     o.textContent = d.label || `Cam ${i+1}`;
     cams.appendChild(o);
   });
-  if(devs[0]) currentDeviceId = devs[0].deviceId;
+  if(devs[0]) selectedDeviceId = devs[0].deviceId;
 }
-cams.addEventListener('change',()=> currentDeviceId = cams.value);
+cams.addEventListener('change',()=> selectedDeviceId = cams.value);
 
 async function startScan(){
-  if(running) return;
-  running = true;
+  if(scanning) return;
+  scanning = true;
   scanStatus.textContent = 'Escaneando…';
-  await reader.decodeFromVideoDevice(currentDeviceId, video, (result,err)=>{
-    if(result){
-      handleBarcode(result.getText());
-    }
-  });
+
+  try{
+    await codeReader.decodeFromVideoDevice(
+      selectedDeviceId,
+      video,
+      (result,err)=>{
+        if(result){
+          const text = result.getText ? result.getText() : result.text;
+          handleBarcode(text);
+          stopScan();   // APAGAR CÁMARA APENAS LEE
+        }
+      }
+    );
+  }catch(e){
+    console.error(e);
+    scanStatus.textContent = 'Error al iniciar cámara';
+    scanning = false;
+  }
 }
+
 function stopScan(){
-  if(!running) return;
-  reader.reset();
-  running = false;
+  if(!scanning) return;
+  codeReader.reset();
+  const stream = video.srcObject;
+  if(stream){
+    stream.getTracks().forEach(t=>t.stop());
+    video.srcObject = null;
+  }
+  scanning = false;
   scanStatus.textContent = 'Cámara detenida';
 }
 
@@ -600,8 +605,6 @@ async function handleBarcode(text){
       cantScan.classList.add('readonly');
     }
 
-    // apagamos cámara y dejamos listo para completar ubicación / bobinas
-    stopScan();
     document.getElementById('ubicacion_scan').focus();
     showHtml(okScan, `Datos cargados por escaneo del ID ${text}`);
     lastResult.textContent = `OK (${text})`;
@@ -618,4 +621,3 @@ resetScanForm();
 </script>
 </body>
 </html>
-
