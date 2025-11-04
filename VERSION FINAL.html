@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Alta de Bobinas • Manual / Escaneo</title>
+<style>
+:root{
+  --radius:14px;
+  --ink:#111827;
+  --muted:#4b5563;
+  --bg:#f6f7fb;
+  --ok:#065f46;
+  --err:#991b1b;
+}
+*{box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:linear-gradient(160deg,#f3f4f6,#f9fafb);
+  margin:0;
+  color:#1d2433;
+}
+.wrap{max-width:920px;margin:36px auto;padding:20px}
+.card{
+  background:#fff;
+  border-radius:var(--radius);
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  padding:24px;
+}
+.title{font-size:28px;text-align:center;margin:0 0 8px}
+.subtitle{color:var(--muted);text-align:center;margin:0 0 10px}
+.strong-sub{font-weight:800;text-align:center;margin:0 0 10px}
+
+.nav{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  margin-bottom:16px;
+}
+.tab{
+  border:0;
+  background:#e5e7eb;
+  color:#111827;
+  padding:10px 14px;
+  border-radius:999px;
+  font-weight:700;
+  cursor:pointer;
+}
+.tab.primary{background:#111827;color:#fff}
+
+form{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:16px;
+}
+.field{display:flex;flex-direction:column;gap:8px}
+.col-12{grid-column:span 12}
+.col-6{grid-column:span 6}
+.col-4{grid-column:span 4}
+
+label{font-weight:700;font-size:13.5px}
+.req{color:#dc2626;font-weight:800}
+
+input,select,textarea{
+  appearance:none;
+  width:100%;
+  padding:10px 12px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  background:#fff;
+  font:inherit;
+  color:inherit;
+}
+textarea{min-height:86px;resize:vertical}
+input:focus,select:focus,textarea:focus{
+  outline:3px solid #dbeafe;
+  border-color:#93c5fd;
+}
+
+.help{font-size:12px;color:#6b7280}
+
+.actions{
+  grid-column:span 12;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:stretch;
+}
+
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:14px 20px;
+  font-weight:800;
+  cursor:pointer;
+}
+.btn-primary{background:#111827;color:#fff}
+.btn-ghost{
+  background:#fee2e2;
+  color:#7f1d1d;
+  width:max-content;
+  align-self:center;
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:600;
+  font-size:12.5px;
+}
+
+.status{
+  display:none;
+  margin-top:6px;
+  padding:12px 14px;
+  border-radius:10px;
+}
+.ok{
+  background:#ecfdf5;
+  color:#065f46;
+  border:1px solid #10b98133;
+}
+.err{
+  background:#fef2f2;
+  color:#991b1b;
+  border:1px solid #ef444433;
+}
+
+.home-actions{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  margin-top:10px;
+}
+.home-btn{
+  border:2px dashed #e5e7eb;
+  border-radius:14px;
+  padding:18px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .15s;
+}
+.home-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 18px rgba(0,0,0,.08);
+}
+.home-btn h3{margin:0 0 6px}
+
+.scan-wrap{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:16px;
+}
+#video{
+  width:100%;
+  border-radius:14px;
+  background:#000;
+}
+.badge{
+  display:inline-block;
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#eef2ff;
+  border:1px solid #c7d2fe;
+  color:#3730a3;
+}
+.scan-controls{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.scan-controls button{
+  padding:10px 12px;
+  border-radius:10px;
+  border:0;
+  cursor:pointer;
+  font-weight:700;
+}
+.start{background:#111827;color:#fff}
+.stop{background:#e5e7eb;color:#111827}
+
+/* campos readonly del escáner */
+.readonly{
+  background:#fef2f2 !important;
+  border-color:#fecaca !important;
+  color:#7f1d1d;
+}
+
+@media(max-width:840px){
+  .scan-wrap{grid-template-columns:1fr}
+  .col-6,.col-4{grid-column:span 12}
+  .home-actions{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav">
+    <button class="tab primary" data-view="home">Inicio</button>
+    <button class="tab" data-view="manual">Manual</button>
+    <button class="tab" data-view="scan">Escanear</button>
+  </div>
+
+  <!-- HOME -->
+  <section id="home" class="card">
+    <h1 class="title">Alta de Bobinas de Etiquetas</h1>
+    <p class="subtitle">Elegí cómo querés cargar los datos.</p>
+    <p class="strong-sub">Cada bobina tendrá un ID único generado en Power Automate.</p>
+    <div class="home-actions">
+      <div class="home-btn" onclick="go('manual')">
+        <h3>➊ Carga Manual</h3>
+        <div class="help">Completar el formulario a mano.</div>
+      </div>
+      <div class="home-btn" onclick="go('scan')">
+        <h3>➋ Escanear Código</h3>
+        <div class="help">Leer un Code128 con la cámara y autocompletar desde base de datos.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANUAL -->
+  <section id="manual" class="card" hidden>
+    <h2 class="title" style="font-size:24px">Alta Manual</h2>
+    <p class="subtitle">Complete los datos y al final seleccione cuántas bobinas idénticas desea crear.</p>
+
+    <form id="form-bobinas-manual" novalidate>
+      <div class="field required col-4">
+        <label>CÓDIGO <span class="req">*</span></label>
+        <input id="codigo" type="text" required placeholder="Ej.: E0000000-A00000"/>
+      </div>
+      <div class="field required col-4">
+        <label>CANTIDAD <span class="req">*</span></label>
+        <input id="cantidad" type="number" required placeholder="Ej.: 1000"/>
+      </div>
+      <div class="field required col-4">
+        <label>N° BOBINAS <span class="req">*</span></label>
+        <input id="numeroBobinas" type="number" min="1" max="10" required placeholder="Ej.: 10"/>
+      </div>
+      <div class="field required col-4">
+        <label>PROVEEDOR <span class="req">*</span></label>
+        <select id="proveedor" required>
+          <option value="">Seleccione...</option>
+          <option>VERTICALIZADA</option>
+          <option>ETHIPRINT</option>
+          <option>STAMPA</option>
+          <option>ALMACEN CQ</option>
+        </select>
+      </div>
+      <div class="field required col-4">
+        <label>UBICACIÓN <span class="req">*</span></label>
+        <input id="ubicacion" type="text" required placeholder="Ej.: A-C0-R0-N0"/>
+      </div>
+      <div class="field required col-4">
+        <label>FECHA DE INGRESO <span class="req">*</span></label>
+        <input id="fechaIngreso" type="date" required/>
+      </div>
+      <div class="field col-12">
+        <label>OBSERVACIÓN</label>
+        <textarea id="observacion" placeholder="Texto libre (opcional)"></textarea>
+      </div>
+      <div class="actions">
+        <button id="btnSubmitManual" class="btn btn-primary" type="submit">Enviar</button>
+        <button class="btn-ghost" type="reset">Limpiar</button>
+        <div id="statusOk" class="status ok"></div>
+        <div id="statusErr" class="status err"></div>
+      </div>
+    </form>
+  </section>
+
+  <!-- ESCANEO -->
+  <section id="scan" class="card" hidden>
+    <h2 class="title" style="font-size:24px">Escanear Código</h2>
+    <p class="subtitle">Apuntá al código de barras (Code128). Cuando lo detecte, se consulta la base y se completa el formulario de abajo.</p>
+
+    <div class="scan-wrap">
+      <div>
+        <video id="video" playsinline></video>
+        <div style="margin-top:8px">
+          <span class="badge" id="scanStatus">Cámara detenida</span>
+        </div>
+      </div>
+      <div class="scan-controls">
+        <label>Cámara</label>
+        <select id="cameras"></select>
+        <button class="start" id="btnStart">Iniciar escaneo</button>
+        <button class="stop" id="btnStop">Detener</button>
+        <div class="help">Formato: <strong>Code128</strong></div>
+        <div class="help">Resultado: <code id="lastResult">—</code></div>
+      </div>
+    </div>
+
+    <!-- Formulario de alta por escaneo -->
+    <hr style="margin:20px 0;border:none;border-top:1px solid #e5e7eb"/>
+    <form id="form-bobinas-scan" novalidate>
+      <div class="field required col-4">
+        <label>CÓDIGO <span class="req">*</span></label>
+        <input id="codigo_scan" type="text" required readonly class="readonly"
+               placeholder="Se completa al escanear"/>
+      </div>
+      <div class="field required col-4">
+        <label>CANTIDAD <span class="req">*</span></label>
+        <input id="cantidad_scan" type="number" required readonly class="readonly"
+               placeholder="Se completa al escanear"/>
+      </div>
+      <div class="field required col-4">
+        <label>N° BOBINAS <span class="req">*</span></label>
+        <input id="numeroBobinas_scan" type="number" min="1" max="10"
+               required placeholder="Ej.: 10"/>
+      </div>
+      <div class="field required col-4">
+        <label>PROVEEDOR <span class="req">*</span></label>
+        <select id="proveedor_scan" required disabled class="readonly">
+          <option value="">Se completa al escanear</option>
+          <option>VERTICALIZADA</option>
+          <option>ETHIPRINT</option>
+          <option>STAMPA</option>
+          <option>ALMACEN CQ</option>
+        </select>
+      </div>
+      <div class="field required col-4">
+        <label>UBICACIÓN <span class="req">*</span></label>
+        <input id="ubicacion_scan" type="text" required placeholder="Ej.: A-C0-R0-N0"/>
+      </div>
+      <div class="field required col-4">
+        <label>FECHA DE INGRESO <span class="req">*</span></label>
+        <input id="fechaIngreso_scan" type="date" required/>
+      </div>
+      <div class="field col-12">
+        <label>OBSERVACIÓN</label>
+        <textarea id="observacion_scan"
+                  placeholder="Texto libre (opcional)"></textarea>
+      </div>
+      <div class="actions">
+        <button id="btnSubmitScan" class="btn btn-primary" type="submit">Enviar</button>
+        <button class="btn-ghost" type="reset"
+                onclick="resetScanForm()">Limpiar</button>
+        <div id="statusOkScan" class="status ok"></div>
+        <div id="statusErrScan" class="status err"></div>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- ZXing -->
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
+<script>
+/* ========== CONFIG FLOWS ========== */
+const LOOKUP_FLOW_URL = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";   // <-- reemplazar
+const LOOKUP_API_KEY  = "super-clave-123";               // si usás x-api-key
+const FLOW_URL        = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";     // <-- reemplazar
+const MAX_BOBINAS     = 10;
+
+/* ========== NAVEGACIÓN ========== */
+const views=['home','manual','scan'];
+function go(v){
+  views.forEach(x=>{
+    document.getElementById(x).hidden = (x!==v);
+  });
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('primary', t.dataset.view===v);
+  });
+}
+document.querySelectorAll('.tab')
+  .forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
+
+/* ========== UTILIDADES ========== */
+function showHtml(el,html){el.innerHTML=html;el.style.display='block';}
+function show(el,msg){el.textContent=msg;el.style.display='block';}
+function hide(el){el.textContent='';el.innerHTML='';el.style.display='none';}
+
+/* ========== FORM MANUAL ========== */
+const formManual   = document.getElementById('form-bobinas-manual');
+const okManual     = document.getElementById('statusOk');
+const errManual    = document.getElementById('statusErr');
+const btnManual    = document.getElementById('btnSubmitManual');
+const codigoManual = document.getElementById('codigo');
+const fechaManual  = document.getElementById('fechaIngreso');
+
+// fecha por defecto hoy
+const today = new Date();
+const isoToday = today.toISOString().split('T')[0];
+fechaManual.value = isoToday;
+
+// mayúsculas en código manual
+codigoManual.addEventListener('input',()=>{
+  codigoManual.value = codigoManual.value.toUpperCase();
+});
+function setBusy(btn,v){
+  btn.disabled = v;
+  btn.textContent = v ? 'Enviando…' : 'Enviar';
+}
+
+formManual.addEventListener('submit', async e=>{
+  e.preventDefault(); hide(okManual); hide(errManual);
+  if(!formManual.checkValidity()){ formManual.reportValidity(); return; }
+
+  const n = parseInt(document.getElementById('numeroBobinas').value,10);
+  if(n>MAX_BOBINAS){ show(errManual,`Máx permitido ${MAX_BOBINAS}`); return; }
+
+  const payload = {
+    codigo: codigoManual.value.trim().toUpperCase(),
+    cantidadPorBobina: +document.getElementById('cantidad').value,
+    proveedor: document.getElementById('proveedor').value,
+    fechaIngreso: fechaManual.value,
+    ubicacion: document.getElementById('ubicacion').value.trim(),
+    observacion: document.getElementById('observacion').value.trim(),
+    numeroBobinas: n
+  };
+
+  setBusy(btnManual,true);
+  try{
+    const res = await fetch(FLOW_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data?.error || res.statusText);
+
+    const ids = Array.isArray(data?.ids) ? data.ids : [];
+    const cant = data?.creadas ?? (ids.length || n);
+    let html = `✅ Se crearon ${cant} bobina(s).`;
+    if(ids.length) html += `<br>IDs: ${ids.join(', ')}`;
+    showHtml(okManual, html);
+
+    formManual.reset();
+    fechaManual.value = isoToday;
+  }catch(e2){
+    show(errManual,`Error: ${e2.message}`);
+  }finally{
+    setBusy(btnManual,false);
+  }
+});
+
+/* ========== FORM ESCANEO ========== */
+const formScan    = document.getElementById('form-bobinas-scan');
+const okScan      = document.getElementById('statusOkScan');
+const errScan     = document.getElementById('statusErrScan');
+const btnScan     = document.getElementById('btnSubmitScan');
+const codigoScan  = document.getElementById('codigo_scan');
+const cantScan    = document.getElementById('cantidad_scan');
+const provScan    = document.getElementById('proveedor_scan');
+const fechaScan   = document.getElementById('fechaIngreso_scan');
+fechaScan.value   = isoToday;
+
+function resetScanForm(){
+  codigoScan.value = '';
+  cantScan.value   = '';
+  provScan.value   = '';
+  provScan.selectedIndex = 0;
+  document.getElementById('ubicacion_scan').value = '';
+  document.getElementById('observacion_scan').value = '';
+  codigoScan.readOnly = cantScan.readOnly = true;
+  provScan.disabled = true;
+  codigoScan.classList.add('readonly');
+  cantScan.classList.add('readonly');
+  provScan.classList.add('readonly');
+}
+
+formScan.addEventListener('submit', async e=>{
+  e.preventDefault(); hide(okScan); hide(errScan);
+  if(!formScan.checkValidity()){ formScan.reportValidity(); return; }
+
+  const n = parseInt(document.getElementById('numeroBobinas_scan').value,10);
+  if(n>MAX_BOBINAS){ show(errScan,`Máx permitido ${MAX_BOBINAS}`); return; }
+
+  const payload = {
+    codigo: codigoScan.value.trim().toUpperCase(),
+    cantidadPorBobina: +cantScan.value,
+    proveedor: provScan.value,
+    fechaIngreso: fechaScan.value,
+    ubicacion: document.getElementById('ubicacion_scan').value.trim(),
+    observacion: document.getElementById('observacion_scan').value.trim(),
+    numeroBobinas: n
+  };
+
+  setBusy(btnScan,true);
+  try{
+    const res = await fetch(FLOW_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data?.error || res.statusText);
+
+    const ids = Array.isArray(data?.ids) ? data.ids : [];
+    const cant = data?.creadas ?? (ids.length || n);
+    let html = `✅ Se crearon ${cant} bobina(s).`;
+    if(ids.length) html += `<br>IDs: ${ids.join(', ')}`;
+    showHtml(okScan, html);
+
+    formScan.reset();
+    fechaScan.value = isoToday;
+    resetScanForm();
+  }catch(e2){
+    show(errScan,`Error: ${e2.message}`);
+  }finally{
+    setBusy(btnScan,false);
+  }
+});
+
+/* ========== ESCANEO ZXing ========== */
+const {BrowserMultiFormatReader,BarcodeFormat,DecodeHintType} = ZXing;
+const video      = document.getElementById('video');
+const cams       = document.getElementById('cameras');
+const scanStatus = document.getElementById('scanStatus');
+const lastResult = document.getElementById('lastResult');
+
+const hints = new Map();
+hints.set(DecodeHintType.POSSIBLE_FORMATS,[BarcodeFormat.CODE_128]);
+const reader = new BrowserMultiFormatReader(hints);
+let currentDeviceId = null;
+let running = false;
+
+async function listCameras(){
+  const devs = await BrowserMultiFormatReader.listVideoInputDevices();
+  cams.innerHTML = '';
+  devs.forEach((d,i)=>{
+    const o = document.createElement('option');
+    o.value = d.deviceId;
+    o.textContent = d.label || `Cam ${i+1}`;
+    cams.appendChild(o);
+  });
+  if(devs[0]) currentDeviceId = devs[0].deviceId;
+}
+cams.addEventListener('change',()=> currentDeviceId = cams.value);
+
+async function startScan(){
+  if(running) return;
+  running = true;
+  scanStatus.textContent = 'Escaneando…';
+  await reader.decodeFromVideoDevice(currentDeviceId, video, (result,err)=>{
+    if(result){
+      handleBarcode(result.getText());
+    }
+  });
+}
+function stopScan(){
+  if(!running) return;
+  reader.reset();
+  running = false;
+  scanStatus.textContent = 'Cámara detenida';
+}
+
+document.getElementById('btnStart').onclick = e=>{
+  e.preventDefault();
+  startScan();
+};
+document.getElementById('btnStop').onclick = e=>{
+  e.preventDefault();
+  stopScan();
+};
+
+/* ========== LOOKUP AL ESCANEAR ========== */
+async function handleBarcode(text){
+  lastResult.textContent = text;
+
+  try{
+    const headers = {'Content-Type':'application/json'};
+    if(LOOKUP_API_KEY) headers['x-api-key'] = LOOKUP_API_KEY;
+
+    const res = await fetch(LOOKUP_FLOW_URL,{
+      method:'POST',
+      headers,
+      body: JSON.stringify({ idBobina: text.trim() })
+    });
+    const data = await res.json();
+
+    if(!res.ok){
+      lastResult.textContent = `Error HTTP ${res.status}`;
+      return;
+    }
+
+    // nombres posibles según cómo armes el JSON en el Flow
+    const codigo   = data.codigo   || data.CODIGO   || data.codigoBobina;
+    const proveedor= data.proveedor|| data.PROVEEDOR;
+    const cantidad = data.cantidadSugerida ??
+                     data.cantidad ??
+                     data.cantidadPorBobina ??
+                     data.CANTIDAD;
+
+    if(!codigo){
+      lastResult.textContent = 'Respuesta sin código (revisar nombres de propiedades en el Flow)';
+      return;
+    }
+
+    // rellenar formulario de escaneo
+    codigoScan.value = codigo.toUpperCase();
+    codigoScan.readOnly = true;
+    codigoScan.classList.add('readonly');
+
+    if(proveedor){
+      provScan.value = proveedor;
+      provScan.disabled = true;
+      provScan.classList.add('readonly');
+    }
+
+    if(cantidad != null){
+      cantScan.value = cantidad;
+      cantScan.readOnly = true;
+      cantScan.classList.add('readonly');
+    }
+
+    // apagamos cámara y dejamos listo para completar ubicación / bobinas
+    stopScan();
+    document.getElementById('ubicacion_scan').focus();
+    showHtml(okScan, `Datos cargados por escaneo del ID ${text}`);
+    lastResult.textContent = `OK (${text})`;
+  }catch(e){
+    console.error(e);
+    lastResult.textContent = 'Error en lookup';
+  }
+}
+
+/* ========== INIT ========== */
+go('home');
+listCameras().catch(console.error);
+resetScanForm();
+</script>
+</body>
+</html>
