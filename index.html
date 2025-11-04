@@ -557,7 +557,7 @@ document.getElementById('btnStop').onclick = e=>{
 
 /* ========== LOOKUP AL ESCANEAR ========== */
 async function handleBarcode(text){
-  lastResult.textContent = text;
+  lastResult.textContent = `Leyendo ${text}…`;
 
   try{
     const headers = {'Content-Type':'application/json'};
@@ -568,23 +568,44 @@ async function handleBarcode(text){
       headers,
       body: JSON.stringify({ idBobina: text.trim() })
     });
-    const data = await res.json();
+
+    const raw = await res.json();
 
     if(!res.ok){
       lastResult.textContent = `Error HTTP ${res.status}`;
       return;
     }
 
-    // nombres posibles según cómo armes el JSON en el Flow
-    const codigo   = data.codigo   || data.CODIGO   || data.codigoBobina;
-    const proveedor= data.proveedor|| data.PROVEEDOR;
-    const cantidad = data.cantidadSugerida ??
-                     data.cantidad ??
-                     data.cantidadPorBobina ??
-                     data.CANTIDAD;
+    // Normalizar: si viene { body:{...} } usar body; si viene array usar [0]
+    let data = raw.body ?? raw;
+    if(Array.isArray(data)) data = data[0];
+
+    // DEBUG amigable: mostrar claves por si algo sale mal
+    const keys = Object.keys(data || {});
+    console.log('Respuesta lookup:', data);
+
+    const codigo =
+      data.codigo   ??
+      data.CODIGO   ??
+      data.Codigo   ??
+      data.codigoBobina ??
+      data.SKU;
+
+    const proveedor =
+      data.proveedor ??
+      data.PROVEEDOR ??
+      data.Proveedor;
+
+    const cantidad =
+      data.cantidadSugerida ??
+      data.cantidad ??
+      data.cantidadPorBobina ??
+      data.CANTIDAD ??
+      data.Cantidad;
 
     if(!codigo){
-      lastResult.textContent = 'Respuesta sin código (revisar nombres de propiedades en el Flow)';
+      lastResult.textContent =
+        'Respuesta sin código. Propiedades recibidas: ' + keys.join(', ');
       return;
     }
 
@@ -614,6 +635,7 @@ async function handleBarcode(text){
   }
 }
 
+
 /* ========== INIT ========== */
 go('home');
 listCameras().catch(console.error);
@@ -621,3 +643,4 @@ resetScanForm();
 </script>
 </body>
 </html>
+
