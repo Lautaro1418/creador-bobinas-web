@@ -292,8 +292,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script>
 /* ===== Config Flows ===== */
-const FLOW_URL        = "PASTE_YOUR_FLOW_URL_HERE";       // Flow que CREA bobinas
-const LOOKUP_FLOW_URL = "PASTE_YOUR_LOOKUP_URL_HERE";     // Flow que BUSCA datos por código
+const FLOW_URL        = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";       // Flow que CREA bobinas
+const LOOKUP_FLOW_URL = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";     // Flow que BUSCA datos por código
 const API_KEY         = "";                               // opcional
 const API_KEY_LOOKUP  = "";                               // opcional
 const NUM_BOBINAS     = 1;                                // siempre 1
@@ -623,3 +623,4 @@ listCameras().catch(console.error);
 </script>
 </body>
 </html>
+
