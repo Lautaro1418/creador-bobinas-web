@@ -1,626 +1,1198 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Altas de Bobinas • Manual / Escaneo</title>
-<style>
-  :root { --radius:14px; --ink:#111827; --muted:#4b5563; --bg:#f6f7fb; --ok:#065f46; --err:#991b1b; }
-  *{box-sizing:border-box}
-  body{
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;
-    background:linear-gradient(160deg,#f3f4f6,#f9fafb);
-    margin:0;
-    color:#1d2433
-  }
-  .wrap{max-width: 920px; margin: 36px auto; padding: 20px}
-  .card{
-    background:#fff;
-    border-radius: var(--radius);
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
-    padding:24px
-  }
-  .title{font-size: 28px; text-align:center; margin:0 0 8px}
-  .subtitle{color:var(--muted); text-align:center; margin:0 0 10px}
-  .strong-sub{font-weight:800; text-align:center; margin:0 0 10px}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Alta de Bobinas</title>
+  <style>
+    :root {
+      --radius: 14px;
+      --ink: #111827;
+      --muted: #4b5563;
+      --bg: #f3f4f6;
+      --ok: #065f46;
+      --err: #991b1b;
+      --accent: #1e3a8a;
+      --accent-strong: #1d4ed8;
+      --accent-soft: #dbeafe;
+    }
 
-  /* NAV */
-  .nav { display:flex; gap:12px; justify-content:center; margin-bottom:16px }
-  .tab {
-    border:0;
-    background:#e5e7eb;
-    color:#111827;
-    padding:10px 14px;
-    border-radius:999px;
-    font-weight:700;
-    cursor:pointer
-  }
-  .tab.primary { background:#111827; color:#fff }
+    * { box-sizing: border-box; }
 
-  /* FORM GRID */
-  form{display:grid; grid-template-columns: repeat(12,1fr); gap:16px}
-  .field{display:flex; flex-direction:column; gap:8px}
-  .col-12{grid-column:span 12}
-  .col-6{grid-column:span 6}
-  .col-4{grid-column:span 4}
-  label{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px}
-  .req{color:#dc2626; font-weight:800}
-  input[type="text"],input[type="number"],input[type="date"],select,textarea{
-    appearance:none;
-    width:100%;
-    padding:10px 12px;
-    border:1px solid #d1d5db;
-    border-radius:10px;
-    background:#fff;
-    font:inherit;
-    color:inherit
-  }
-  .field.required input,.field.required select{ background:#f9fafb; border-color:#9ca3af }
-  textarea{min-height:86px; resize:vertical}
-  input:focus,select:focus,textarea:focus{ outline:3px solid #dbeafe; border-color:#93c5fd }
-  .help{ font-size:12px; color:#6b7280 }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #e5e7eb, #f9fafb);
+      color: var(--ink);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 24px 12px;
+    }
 
-  .actions{
-    grid-column: span 12;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    align-items:stretch
-  }
-  .btn{
-    border:0;
-    border-radius:12px;
-    padding:14px 20px;
-    font-weight:800;
-    cursor:pointer
-  }
-  .btn-primary{ background:#111827; color:#fff }
-  .btn-ghost{
-    background:#fee2e2;
-    color:#7f1d1d;
-    width:max-content;
-    align-self:center;
-    padding:8px 12px;
-    border-radius:10px;
-    font-weight:600;
-    font-size:12.5px
-  }
-  .status{
-    display:none;
-    margin-top:6px;
-    padding:12px 14px;
-    border-radius:10px
-  }
-  .ok{ background:#ecfdf5; color:#065f46; border:1px solid #10b98133 }
-  .err{ background:#fef2f2; color:#991b1b; border:1px solid #ef444433 }
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+      padding: 20px 18px 22px;
+    }
 
-  .footer{ font-size:12px; color:#6b7280 }
+    header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
 
-  /* HOME */
-  .home-actions{
-    display:grid;
-    grid-template-columns: repeat(2,1fr);
-    gap:14px;
-    margin-top:10px
-  }
-  .home-btn{
-    border:2px dashed #e5e7eb;
-    border-radius:14px;
-    padding:18px;
-    text-align:center;
-    cursor:pointer;
-    transition:all .15s
-  }
-  .home-btn:hover{
-    transform: translateY(-1px);
-    box-shadow:0 10px 18px rgba(0,0,0,.08)
-  }
-  .home-btn h3{ margin:0 0 6px }
+    header h1 {
+      margin: 0;
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
 
-  /* SCAN */
-  .scan-wrap{
-    display:grid;
-    grid-template-columns: 2fr 1fr;
-    gap:16px
-  }
-  #video{ width:100%; border-radius:14px; background:#000 }
-  .badge{
-    display:inline-block;
-    font-size:12px;
-    padding:4px 8px;
-    border-radius:999px;
-    background:#eef2ff;
-    border:1px solid #c7d2fe;
-    color:#3730a3
-  }
-  .scan-controls{
-    display:flex;
-    flex-direction:column;
-    gap:10px
-  }
-  .scan-controls button{
-    padding:10px 12px;
-    border-radius:10px;
-    border:0;
-    cursor:pointer;
-    font-weight:700
-  }
-  .start{ background:#111827; color:#fff }
-  .stop{ background:#e5e7eb; color:#111827 }
+    #btn-home-top {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      color: #374151;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: default;
+      box-shadow: none;
+      transition: all 0.15s ease;
+    }
 
-  @media (max-width: 840px){
-    .scan-wrap{ grid-template-columns: 1fr }
-    .col-6,.col-4{ grid-column:span 12 }
-    .home-actions{ grid-template-columns: 1fr }
-  }
-</style>
+    #btn-home-top.active {
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.4);
+    }
+
+    #btn-home-top span.icon {
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        gap: 8px;
+      }
+      #btn-home-top {
+        position: static;
+        transform: none;
+        align-self: flex-end;
+      }
+    }
+
+    .screen {
+      display: none;
+      border-radius: var(--radius);
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 16px 14px 18px;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .screen-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .screen-title-strong {
+      font-size: 1.1rem;
+      color: var(--accent-strong);
+      border-left: 4px solid var(--accent-strong);
+      padding-left: 8px;
+      margin-bottom: 8px;
+    }
+
+    .screen-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .grid-2 {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      border-radius: 12px;
+      border: 1px dashed #e5e7eb;
+      background: white;
+      padding: 12px;
+    }
+
+    .card h3 {
+      margin: 0 0 4px;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 8px 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 500;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: white;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.4);
+      border: none;
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: var(--accent-strong);
+      border: 1px solid var(--accent-strong);
+    }
+
+    .btn-soft {
+      background: #e0ecff;
+      color: var(--accent-strong);
+      border: 1px solid #bfdbfe;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn[disabled] {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-row-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-big {
+      padding: 11px 28px;
+      font-size: 0.9rem;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .btn-small-right {
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      align-self: flex-end;
+      margin-left: 12px;
+    }
+
+    .home-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .home-actions .btn {
+      flex: 1 1 180px;
+      justify-content: center;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .field-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .btn-row-main {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-small-right {
+        align-self: flex-end;
+        margin-left: 0;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.78rem;
+    }
+
+    .field label {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .field label span.req {
+      color: #dc2626;
+      font-size: 0.75rem;
+    }
+
+    .field label span.badge-fixed {
+      font-size: 0.68rem;
+      border-radius: 999px;
+      padding: 1px 6px;
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .field label span.badge-auto {
+      font-size: 0.68rem;
+      border-radius: 999px;
+      padding: 1px 6px;
+      background: #ecfdf3;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .field input,
+    .field select {
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 7px 9px;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
+      background: #eff6ff;
+    }
+
+    .field input[readonly],
+    .field input[disabled] {
+      background: #f3f4f6;
+      color: #4b5563;
+      cursor: not-allowed;
+    }
+
+    .field small {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      padding: 7px 9px;
+      border-radius: 10px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status.visible {
+      display: inline-flex;
+    }
+
+    .status.ok {
+      background: #ecfdf3;
+      color: var(--ok);
+      border: 1px solid #bbf7d0;
+    }
+
+    .status.err {
+      background: #fef2f2;
+      color: var(--err);
+      border: 1px solid #fecaca;
+    }
+
+    .status span.icon {
+      font-size: 1rem;
+    }
+
+    .status code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.7rem;
+      background: rgba(0,0,0,0.03);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    /* Cámara / escáner */
+    .camera-box {
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px dashed #cbd5f5;
+      background: #eef2ff;
+      padding: 10px;
+      font-size: 0.78rem;
+    }
+
+    .camera-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .camera-header span {
+      font-weight: 500;
+      color: #3730a3;
+      font-size: 0.8rem;
+    }
+
+    .camera-note {
+      font-size: 0.7rem;
+      color: #4f46e5;
+      margin-bottom: 6px;
+    }
+
+    .camera-view {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #111827;
+      max-height: 260px;
+    }
+
+    video {
+      width: 100%;
+      display: block;
+      transform: scaleX(-1);
+    }
+
+    .scan-overlay {
+      position: absolute;
+      inset: 0;
+      border: 2px dashed rgba(248, 250, 252, 0.55);
+      box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.7);
+      pointer-events: none;
+    }
+
+    .scan-overlay::after {
+      content: "";
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      top: 50%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+      box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
+      animation: scanline 2s linear infinite;
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-80px); opacity: 0; }
+      20% { opacity: 1; }
+      80% { transform: translateY(80px); opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .camera-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.7rem;
+      color: #4b5563;
+    }
+
+    .badge-soft {
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.06);
+      padding: 2px 8px;
+      font-size: 0.68rem;
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
+  <main class="app">
+    <header>
+      <h1>Alta de Bobinas</h1>
+      <button id="btn-home-top" type="button">
+        <span class="icon">🏠</span>
+        <span class="label">Inicio</span>
+      </button>
+    </header>
 
-  <!-- NAV -->
-  <div class="nav">
-    <button class="tab primary" data-view="home">Inicio</button>
-    <button class="tab" data-view="manual">Manual</button>
-    <button class="tab" data-view="scan">Escanear</button>
-  </div>
-
-  <!-- HOME -->
-  <section id="home" class="card">
-    <h1 class="title">Alta De Bobinas De Etiquetas</h1>
-    <p class="subtitle">Elegí cómo querés cargar los datos.</p>
-    <p class="strong-sub">Cada bobina tendrá un ID único generado en Power Automate.</p>
-
-    <div class="home-actions">
-      <div class="home-btn" onclick="go('manual')">
-        <h3>➊ Carga Manual</h3>
-        <div class="help">Completar el formulario a mano.</div>
+    <!-- PANTALLA PRINCIPAL -->
+    <section id="screen-home" class="screen active">
+      <div class="screen-title">
+        Panel principal
       </div>
-      <div class="home-btn" onclick="go('scan')">
-        <h3>➋ Escanear Código</h3>
-        <div class="help">Leer un Code128 con la cámara y autocompletar.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- MANUAL -->
-  <section id="manual" class="card" hidden>
-    <h2 class="title" style="font-size:24px">Alta Manual</h2>
-    <p class="subtitle">Complete los datos. Se creará 1 bobina por envío.</p>
-
-    <form id="form-bobinas" novalidate>
-      <div class="field required col-4">
-        <label for="codigo">CÓDIGO <span class="req">*</span></label>
-        <input id="codigo" name="codigo" type="text" inputmode="latin" autocomplete="off" required placeholder="Ej.: E0000000-A00000" maxlength="64"/>
-        <span class="help">Se convertirá automáticamente a MAYÚSCULAS.</span>
+      <div class="screen-subtitle">
+        Este módulo te permite dar de alta bobinas tanto de <strong>flujo Verticalizado</strong> como de 
+        <strong>otros proveedores</strong>, unificando el proceso de creación en tu BDD.<br>
+        Elegí el origen de la bobina para continuar:
       </div>
 
-      <div class="field required col-4">
-        <label for="cantidad">CANTIDAD <span class="req">*</span></label>
-        <input id="cantidad" name="cantidad" type="number" min="1" step="1" required placeholder="Ej.: 1000"/>
-      </div>
-
-      <div class="field required col-4">
-        <label for="proveedor">PROVEEDOR <span class="req">*</span></label>
-        <select id="proveedor" name="proveedor" required>
-          <option value="">Seleccione…</option>
-          <option>VERTICALIZADA</option>
-          <option>ETHIPRINT</option>
-          <option>STAMPA</option>
-          <option>ALMACEN CQ</option>
-        </select>
-      </div>
-
-      <div class="field required col-4">
-        <label for="ubicacion">UBICACIÓN <span class="req">*</span></label>
-        <input id="ubicacion" name="ubicacion" type="text" required placeholder="Ej.: A-C0-R0-N0" maxlength="120"/>
-      </div>
-
-      <div class="field required col-4">
-        <label for="fechaIngreso">FECHA DE INGRESO <span class="req">*</span></label>
-        <input id="fechaIngreso" name="fechaIngreso" type="date" required/>
-        <span class="help">Formato ISO (yyyy-mm-dd). Por defecto: hoy.</span>
-      </div>
-
-      <div class="field col-12">
-        <label for="observacion">OBSERVACIÓN</label>
-        <textarea id="observacion" name="observacion" placeholder="Texto libre (opcional)" maxlength="500"></textarea>
-      </div>
-
-      <div class="actions">
-        <button id="btnSubmit" class="btn btn-primary" type="submit">Enviar</button>
-        <button class="btn-ghost" type="reset">Limpiar</button>
-        <div id="statusOk" class="status ok"></div>
-        <div id="statusErr" class="status err"></div>
-        <div class="footer">Se crea siempre 1 bobina por envío desde esta pantalla.</div>
-      </div>
-    </form>
-  </section>
-
-  <!-- ESCANEO -->
-  <section id="scan" class="card" hidden>
-    <h2 class="title" style="font-size:24px">Escanear Código</h2>
-    <p class="subtitle">Apuntá al código de barras (Code128). Se consulta al Flow y se completan los datos. Solo podés editar la ubicación.</p>
-
-    <div class="scan-wrap">
-      <div>
-        <video id="video" playsinline></video>
-        <div style="margin-top:8px">
-          <span class="badge" id="scanStatus">Cámara detenida</span>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Bobinas Verticalizadas</h3>
+          <p>
+            Ingresá o escaneá el <strong>SKU único</strong> de la bobina, cargá la información desde la base 
+            del proveedor vía Power Automate y confirmá la creación. Ideal para flujo automatizado donde la info viene “de fábrica”.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Otros Proveedores</h3>
+          <p>
+            Para proveedores externos o casos especiales donde cargás datos manualmente: IFR, cantidad,
+            fecha, proveedor y número de bobinas. Se validan todos los campos obligatorios antes de crear.
+          </p>
         </div>
       </div>
 
-      <div class="scan-controls">
-        <label>Seleccionar cámara</label>
-        <select id="cameras"></select>
-        <button class="start" id="btnStart">Iniciar escaneo</button>
-        <button class="stop" id="btnStop">Detener</button>
+      <div class="home-actions">
+        <button class="btn btn-primary" data-screen-jump="vert">
+          ⚙️ Verticalizada
+        </button>
+        <button class="btn btn-primary" data-screen-jump="otros">
+          📦 Otros Proveedores
+        </button>
+      </div>
+    </section>
 
-        <div class="field">
-          <label>CÓDIGO DETECTADO</label>
-          <input id="scan_codigo" type="text" readonly/>
+    <!-- PESTAÑA OTROS PROVEEDORES -->
+    <section id="screen-otros" class="screen">
+      <div class="screen-title screen-title-strong">
+        Otros Proveedores
+      </div>
+      <div class="screen-subtitle">
+        Completá los datos de la bobina. Los campos marcados con 
+        <span style="color:#dc2626;">*</span> son obligatorios. 
+        Esta acción llamará al flujo de Power Automate que crea la bobina en tu BDD.
+      </div>
+
+      <form id="form-otros">
+        <div class="field-grid">
+          <div class="field">
+            <label for="otros-ifr">
+              IFR <span class="req">*</span>
+            </label>
+            <input id="otros-ifr" name="ifr" required />
+          </div>
+
+          <div class="field">
+            <label for="otros-cantidad">
+              Cantidad <span class="req">*</span>
+            </label>
+            <input id="otros-cantidad" name="cantidad" type="number" step="0.01" min="0" required />
+          </div>
+
+          <div class="field">
+            <label for="otros-proveedor">
+              Proveedor <span class="req">*</span>
+            </label>
+            <input id="otros-proveedor" name="proveedor" required />
+          </div>
+
+          <div class="field">
+            <label for="otros-fecha">
+              Fecha <span class="req">*</span>
+            </label>
+            <input id="otros-fecha" name="fecha" type="date" required />
+          </div>
+
+          <div class="field">
+            <label for="otros-num-bobinas">
+              Número de bobinas <span class="req">*</span>
+            </label>
+            <input id="otros-num-bobinas" name="numeroBobinas" type="number" min="1" step="1" required />
+          </div>
+
+          <div class="field">
+            <label for="otros-ubicacion">
+              Ubicación
+            </label>
+            <input id="otros-ubicacion" name="ubicacion" placeholder="Opcional" />
+          </div>
         </div>
 
-        <div class="field">
-          <label>PROVEEDOR</label>
-          <input id="scan_proveedor" type="text" readonly/>
+        <div class="btn-row-main">
+          <button type="button" id="btn-otros-crear" class="btn btn-primary btn-big">
+            ✅ Crear bobina
+          </button>
+          <button type="reset" id="btn-otros-limpiar" class="btn btn-secondary btn-small-right">
+            🧹 Limpiar
+          </button>
         </div>
 
-        <div class="field">
-          <label>CANTIDAD SUGERIDA</label>
-          <input id="scan_cantidad" type="number" readonly/>
+        <div id="status-otros" class="status">
+          <span class="icon">●</span>
+          <span class="msg"></span>
         </div>
+      </form>
+    </section>
 
-        <div class="field required">
-          <label for="scan_ubicacion">UBICACIÓN <span class="req">*</span></label>
-          <input id="scan_ubicacion" type="text" placeholder="Ej.: A-C0-R0-N0"/>
-          <span class="help">Solo este campo es editable en esta pantalla.</span>
+    <!-- PESTAÑA VERTICALIZADA -->
+    <section id="screen-vert" class="screen">
+      <div class="screen-title screen-title-strong">
+        Verticalizada
+      </div>
+      <div class="screen-subtitle">
+        Ingresá el <strong>SKU único</strong> de la bobina (teclado, lector externo o cámara).
+        Luego presioná <strong>“Cargar información de bobina”</strong> para que el flujo de Power Automate
+        consulte la base del proveedor y complete los datos automáticamente.
+      </div>
+
+      <!-- SKU + escáner -->
+      <div class="field">
+        <label for="vert-sku">
+          SKU único de bobina <span class="req">*</span>
+        </label>
+        <input id="vert-sku" name="sku" required placeholder="Escaneá con lector o escribí el SKU..." />
+        <small>
+          Podés usar: lector de código de barras USB / BT (como teclado) o el escáner por cámara.
+        </small>
+      </div>
+
+      <div class="camera-box">
+        <div class="camera-header">
+          <span>Escaneo con cámara</span>
+          <button type="button" id="btn-toggle-camera" class="btn btn-outline">
+            📷 Activar cámara
+          </button>
         </div>
-
-        <div class="actions" style="padding-top:0">
-          <button class="btn btn-primary" id="btnCrearScan" type="button">Crear bobina desde escaneo</button>
-          <div id="scanStatusOk" class="status ok"></div>
-          <div id="scanStatusErr" class="status err"></div>
+        <div class="camera-note">
+          Al detectar un código válido se completará automáticamente el campo SKU y la cámara se detendrá.
+        </div>
+        <div id="camera-container" class="camera-view" style="display:none;">
+          <video id="video" playsinline></video>
+          <div class="scan-overlay"></div>
+        </div>
+        <div class="camera-footer">
+          <span class="badge-soft">Usa <code>BarcodeDetector</code> si está disponible.</span>
+          <span id="camera-status">Cámara inactiva.</span>
         </div>
       </div>
-    </div>
-  </section>
 
-</div>
+      <div class="btn-row" style="margin-top:12px;">
+        <button type="button" id="btn-vert-cargar-info" class="btn btn-soft">
+          🔄 Cargar información de bobina
+        </button>
+      </div>
 
-<!-- ZXing -->
-<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
-<script>
-/* ===== Config Flows ===== */
-const FLOW_URL        = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";       // Flow que CREA bobinas
-const LOOKUP_FLOW_URL = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";     // Flow que BUSCA datos por código
-const API_KEY         = "";                               // opcional
-const API_KEY_LOOKUP  = "";                               // opcional
-const NUM_BOBINAS     = 1;                                // siempre 1
+      <hr style="border:none; border-top:1px dashed #e5e7eb; margin:12px 0 10px;">
 
-/* ===== Navegación ===== */
-const views = ['home','manual','scan'];
-function go(view){
-  views.forEach(v=>{
-    document.getElementById(v).hidden = (v!==view);
-  });
-  document.querySelectorAll('.tab').forEach(t=>{
-    t.classList.toggle('primary', t.dataset.view===view);
-  });
-}
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
+      <form id="form-vert">
+        <div class="field-grid">
+          <div class="field">
+            <label for="vert-ifr">
+              IFR <span class="badge-auto">Completa automático</span>
+            </label>
+            <input id="vert-ifr" name="ifr" readonly />
+          </div>
 
-/* ===== Utils mensajes ===== */
-function showHtml(el,html){ el.innerHTML=html; el.style.display='block'; }
-function show(el,msg){ el.textContent=msg; el.style.display='block'; }
-function hide(el){ el.textContent=''; el.innerHTML=''; el.style.display='none'; }
+          <div class="field">
+            <label for="vert-cantidad">
+              Cantidad <span class="badge-auto">Completa automático</span>
+            </label>
+            <input id="vert-cantidad" name="cantidad" readonly />
+          </div>
 
-/* ===== Form Manual ===== */
-const form   = document.getElementById('form-bobinas');
-const btn    = document.getElementById('btnSubmit');
-const ok     = document.getElementById('statusOk');
-const err    = document.getElementById('statusErr');
-const codigo = document.getElementById('codigo');
-const fecha  = document.getElementById('fechaIngreso');
+          <div class="field">
+            <label for="vert-fecha">
+              Fecha <span class="badge-auto">Completa automático</span>
+            </label>
+            <input id="vert-fecha" name="fecha" type="date" readonly />
+          </div>
 
-const today = new Date();
-const yyyy  = today.getFullYear();
-const mm    = String(today.getMonth()+1).padStart(2,'0');
-const dd    = String(today.getDate()).padStart(2,'0');
-fecha.value = `${yyyy}-${mm}-${dd}`;
+          <div class="field">
+            <label for="vert-proveedor">
+              Proveedor 
+              <span class="badge-fixed">Siempre “VERTICALIZADA”</span>
+            </label>
+            <input id="vert-proveedor" name="proveedor" value="VERTICALIZADA" readonly />
+          </div>
 
-codigo.addEventListener('input', ()=>{ codigo.value = codigo.value.toUpperCase().trimStart(); });
-codigo.addEventListener('blur',  ()=>{ codigo.value = codigo.value.trim().toUpperCase(); });
+          <div class="field">
+            <label for="vert-ubicacion">
+              Ubicación
+            </label>
+            <input id="vert-ubicacion" name="ubicacion" placeholder="Opcional, editable" />
+          </div>
+        </div>
 
-function setBusy(v){
-  btn.disabled = v;
-  btn.textContent = v ? 'Enviando…' : 'Enviar';
-}
+        <div class="btn-row-main">
+          <button type="button" id="btn-vert-crear" class="btn btn-primary btn-big">
+            ✅ Crear bobina
+          </button>
+          <button type="reset" id="btn-vert-limpiar" class="btn btn-secondary btn-small-right">
+            🧹 Limpiar
+          </button>
+        </div>
 
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  hide(ok); hide(err);
+        <div id="status-vert" class="status">
+          <span class="icon">●</span>
+          <span class="msg"></span>
+        </div>
+      </form>
+    </section>
+  </main>
 
-  if(!form.checkValidity()){
-    form.reportValidity();
-    return;
-  }
+  <script>
+    // ============================================
+    //  CONFIGURAR ESTAS TRES CONSTANTES
+    // ============================================
+    // 1) Crear bobina desde pestaña "Otros Proveedores"
+    const FLOW_URL_CREAR_OTROS = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";
 
-  const cantidadNum = parseInt(document.getElementById('cantidad').value, 10);
-  if(!Number.isInteger(cantidadNum) || cantidadNum < 1){
-    show(err, 'CANTIDAD debe ser un entero ≥ 1.');
-    return;
-  }
+    // 2) Crear bobina desde pestaña "Verticalizada"
+    const FLOW_URL_CREAR_VERT = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f337efd272244632a9331670dc150286/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UqusVLipO8E3x5WaRr_9t8XVN0FyTzRGByvHBMr3xlM";
 
-  const payload = {
-    codigo:        document.getElementById('codigo').value.trim().toUpperCase(),
-    cantidadPorBobina: cantidadNum,
-    proveedor:     document.getElementById('proveedor').value,
-    fechaIngreso:  document.getElementById('fechaIngreso').value,
-    ubicacion:     document.getElementById('ubicacion').value.trim(),
-    observacion:   document.getElementById('observacion').value.trim(),
-    numeroBobinas: NUM_BOBINAS
-  };
+    // 3) Cargar info de bobina (Verticalizada) a partir del SKU
+    const FLOW_URL_VERTICALIZADA_INFO = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";
 
-  if(!FLOW_URL || FLOW_URL === 'PASTE_YOUR_FLOW_URL_HERE'){
-    show(err, '⚠️ Configurá FLOW_URL en el código.');
-    return;
-  }
+    // ============================================
+    //  NAVEGACIÓN ENTRE PANTALLAS + BOTÓN TOP
+    // ============================================
+    const screens = {
+      home: document.getElementById("screen-home"),
+      otros: document.getElementById("screen-otros"),
+      vert: document.getElementById("screen-vert"),
+    };
 
-  setBusy(true);
-  try{
-    const headers = { 'Content-Type':'application/json' };
-    if(API_KEY) headers['x-api-key'] = API_KEY;
+    const btnHomeTop = document.getElementById("btn-home-top");
+    const btnHomeTopLabel = btnHomeTop.querySelector(".label");
 
-    const res = await fetch(FLOW_URL, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload)
+    function updateTopHome(name) {
+      if (name === "home") {
+        btnHomeTop.classList.remove("active");
+        btnHomeTop.disabled = true;
+        btnHomeTopLabel.textContent = "Inicio";
+      } else {
+        btnHomeTop.classList.add("active");
+        btnHomeTop.disabled = false;
+        btnHomeTopLabel.textContent = "Ir a Inicio";
+      }
+    }
+
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => {
+        el.classList.toggle("active", key === name);
+      });
+      updateTopHome(name);
+      if (name !== "vert") {
+        stopCamera();
+      }
+    }
+
+    document.querySelectorAll("[data-screen-jump]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.screenJump;
+        showScreen(target);
+      });
     });
 
-    let data = null;
-    const ct = res.headers.get('content-type') || '';
-    if(ct.includes('application/json')){
-      data = await res.json();
-    }
-
-    if(!res.ok){
-      throw new Error(data?.error || data?.message || res.statusText || `HTTP ${res.status}`);
-    }
-
-    const ids = Array.isArray(data?.ids) ? data.ids : [];
-    const cantidadCreada = Number.isFinite(data?.creadas)
-      ? data.creadas
-      : (ids.length || payload.numeroBobinas);
-
-    let html = `✅ Se creó correctamente <strong>${cantidadCreada}</strong> bobina.`;
-    if(ids.length > 0){
-      html += `<br><strong>IDs generados:</strong> ${ids.join(', ')}`;
-    }
-    showHtml(ok, html);
-
-    form.reset();
-    fecha.value = `${yyyy}-${mm}-${dd}`;
-  }catch(e2){
-    show(err, `Error al enviar: ${e2.message}`);
-  }finally{
-    setBusy(false);
-  }
-});
-
-/* ===== Escaneo con ZXing ===== */
-const { BrowserMultiFormatReader, BarcodeFormat, DecodeHintType } = ZXing;
-
-const video      = document.getElementById('video');
-const cams       = document.getElementById('cameras');
-const scanStatus = document.getElementById('scanStatus');
-
-const scanCodigo    = document.getElementById('scan_codigo');
-const scanProveedor = document.getElementById('scan_proveedor');
-const scanCantidad  = document.getElementById('scan_cantidad');
-const scanUbicacion = document.getElementById('scan_ubicacion');
-
-const btnStart     = document.getElementById('btnStart');
-const btnStop      = document.getElementById('btnStop');
-const btnCrearScan = document.getElementById('btnCrearScan');
-const scanOk       = document.getElementById('scanStatusOk');
-const scanErr      = document.getElementById('scanStatusErr');
-
-const hints = new Map();
-hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.CODE_128]);
-const codeReader = new BrowserMultiFormatReader(hints);
-
-let currentDeviceId = null;
-let running         = false;
-
-async function listCameras(){
-  const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-  cams.innerHTML = '';
-  devices.forEach((d,i)=>{
-    const opt = document.createElement('option');
-    opt.value = d.deviceId;
-    opt.textContent = d.label || `Cámara ${i+1}`;
-    cams.appendChild(opt);
-  });
-  if(devices[0]) currentDeviceId = devices[0].deviceId;
-}
-cams.addEventListener('change', ()=> currentDeviceId = cams.value );
-
-async function startScan(){
-  if(running) return;
-  running = true;
-  scanStatus.textContent = 'Escaneando…';
-  hide(scanOk); hide(scanErr);
-
-  try{
-    await codeReader.decodeFromVideoDevice(currentDeviceId, video, (result, err)=>{
-      if(result){
-        const text = result.getText();
-        handleBarcode(text);
+    btnHomeTop.addEventListener("click", () => {
+      if (!btnHomeTop.disabled) {
+        showScreen("home");
       }
     });
-  }catch(e){
-    scanStatus.textContent = 'Error iniciando cámara';
-    console.error(e);
-  }
-}
 
-function stopScan(){
-  if(!running) return;
-  codeReader.reset();
-  running = false;
-  scanStatus.textContent = 'Cámara detenida';
-}
+    updateTopHome("home");
 
-btnStart.addEventListener('click', e=>{ e.preventDefault(); startScan(); });
-btnStop .addEventListener('click', e=>{ e.preventDefault(); stopScan();  });
+    // ============================================
+    //  UTILIDADES DE ESTADO / MENSAJES
+    // ============================================
+    function setStatus(el, type, msg) {
+      if (!el) return;
+      el.classList.remove("ok", "err", "visible");
+      if (!msg) return;
 
-function applyMappingScan(mapped){
-  scanCodigo.value    = mapped.codigo    ? String(mapped.codigo).toUpperCase() : '';
-  scanProveedor.value = mapped.proveedor ? String(mapped.proveedor)            : '';
-  scanCantidad.value  = mapped.cantidad  ? String(mapped.cantidad)             : '';
-  scanUbicacion.value = '';
-}
+      el.classList.add("visible");
+      if (type === "ok") {
+        el.classList.add("ok");
+        el.querySelector(".icon").textContent = "✅";
+      } else if (type === "err") {
+        el.classList.add("err");
+        el.querySelector(".icon").textContent = "⚠️";
+      }
+      el.querySelector(".msg").innerHTML = msg;
+    }
 
-function mapLookupResponse(text, data){
-  if(!data || data.ok === false){
-    return { codigo: text };
-  }
-  return {
-    codigo:    data.codigo || text,
-    proveedor: data.proveedor || '',
-    cantidad:  data.cantidadSugerida ?? ''
-  };
-}
+    function disableButton(btn, disabled) {
+      if (!btn) return;
+      btn.disabled = disabled;
+    }
 
-async function handleBarcode(text){
-  stopScan();
-  hide(scanOk); hide(scanErr);
-  scanStatus.textContent = 'Consultando datos en Power Automate…';
+    // ============================================
+    //  FECHA ACTUAL POR DEFECTO (Otros)
+    // ============================================
+    function setTodayDate(inputId) {
+      const el = document.getElementById(inputId);
+      if (!el) return;
+      if (el.value) return;
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      el.value = `${y}-${m}-${d}`;
+    }
+    setTodayDate("otros-fecha");
 
-  if(!LOOKUP_FLOW_URL || LOOKUP_FLOW_URL === 'PASTE_YOUR_LOOKUP_URL_HERE'){
-    applyMappingScan({ codigo: text });
-    scanStatus.textContent = 'Código leído (Flow de lookup no configurado).';
-    return;
-  }
+    // ============================================
+    //  FORZAR MAYÚSCULAS EN CAMPOS DE TEXTO
+    // ============================================
+    function toUpperOnInput(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("input", () => {
+        el.value = el.value.toUpperCase();
+      });
+    }
 
-  try{
-    const headers = { 'Content-Type':'application/json' };
-    if(API_KEY_LOOKUP) headers['x-api-key'] = API_KEY_LOOKUP;
+    ["otros-ifr", "otros-proveedor", "otros-ubicacion", "vert-sku", "vert-ifr", "vert-ubicacion"]
+      .forEach(toUpperOnInput);
 
-    const body = JSON.stringify({ codigo: text });
+    // ============================================
+    //  LLAMADAS FETCH A POWER AUTOMATE
+    // ============================================
+    // Crear bobina - OTROS PROVEEDORES
+    async function llamarFlujoCrearBobinaOtros(payload) {
+      const resp = await fetch(FLOW_URL_CREAR_OTROS, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json().catch(() => ({}));
+      return { ok: resp.ok, data };
+    }
 
-    const res = await fetch(LOOKUP_FLOW_URL, {
-      method: 'POST',
-      headers,
-      body
+    // Crear bobina - VERTICALIZADA
+    async function llamarFlujoCrearBobinaVert(payload) {
+      const resp = await fetch(FLOW_URL_CREAR_VERT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json().catch(() => ({}));
+      return { ok: resp.ok, data };
+    }
+
+    // Cargar info de bobina (VERTICALIZADA) desde SKU
+    async function llamarFlujoVerticalizadaInfo(sku) {
+      const resp = await fetch(FLOW_URL_VERTICALIZADA_INFO, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sku }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      return { ok: resp.ok, data };
+    }
+
+    // ============================================
+    //  OTROS PROVEEDORES: LÓGICA
+    // ============================================
+    const formOtros = document.getElementById("form-otros");
+    const statusOtros = document.getElementById("status-otros");
+    const btnOtrosCrear = document.getElementById("btn-otros-crear");
+    const btnOtrosLimpiar = document.getElementById("btn-otros-limpiar");
+
+    btnOtrosCrear.addEventListener("click", async () => {
+      setStatus(statusOtros, null, "");
+      if (!formOtros.reportValidity()) {
+        setStatus(statusOtros, "err", "Revisá los campos obligatorios antes de crear la bobina.");
+        return;
+      }
+
+      const ifr = document.getElementById("otros-ifr").value.trim().toUpperCase();
+      const cantidad = document.getElementById("otros-cantidad").value.trim();
+      const proveedor = document.getElementById("otros-proveedor").value.trim().toUpperCase();
+      const fecha = document.getElementById("otros-fecha").value;
+      const numeroBobinasRaw = document.getElementById("otros-num-bobinas").value.trim();
+      const numeroBobinasNum = Number(numeroBobinasRaw);
+      const ubicacion = document.getElementById("otros-ubicacion").value.trim().toUpperCase();
+
+      if (!numeroBobinasRaw || isNaN(numeroBobinasNum) || numeroBobinasNum <= 0) {
+        setStatus(statusOtros, "err", "El número de bobinas debe ser un valor numérico mayor que 0.");
+        return;
+      }
+
+      const payload = {
+        origen: "OTROS_PROVEEDORES",
+        ifr,
+        cantidad,
+        proveedor,
+        fecha,
+        numeroBobinas: numeroBobinasNum,
+        ubicacion: ubicacion || null,
+      };
+
+      try {
+        disableButton(btnOtrosCrear, true);
+        setStatus(statusOtros, "ok", "Creando bobina en la BDD…");
+
+        const { ok, data } = await llamarFlujoCrearBobinaOtros(payload);
+
+        if (ok && data && (data.ok === true || data.success === true)) {
+          const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
+          setStatus(
+            statusOtros,
+            "ok",
+            `Bobina creada exitosamente. ID: <code>${id}</code>`
+          );
+        } else {
+          console.error("Respuesta flujo crear (otros):", data);
+          setStatus(
+            statusOtros,
+            "err",
+            "No se pudo crear la bobina. Revisá el flujo o los datos enviados."
+          );
+        }
+      } catch (e) {
+        console.error(e);
+        setStatus(
+          statusOtros,
+          "err",
+          "Error llamando al flujo de creación. Ver consola del navegador para más detalles."
+        );
+      } finally {
+        disableButton(btnOtrosCrear, false);
+      }
     });
 
-    let data = null;
-    const ct = res.headers.get('content-type') || '';
-    if(ct.includes('application/json')){
-      data = await res.json();
-    }
-
-    if(!res.ok){
-      throw new Error(data?.error || data?.message || res.statusText || `HTTP ${res.status}`);
-    }
-
-    const mapped = mapLookupResponse(text, data);
-    applyMappingScan(mapped);
-
-    scanStatus.textContent = 'Datos obtenidos desde Power Automate.';
-  }catch(e){
-    console.error(e);
-    applyMappingScan({ codigo: text });
-    scanStatus.textContent = 'Error al consultar el Flow. Se usa solo el código leído.';
-  }
-}
-
-function setScanBusy(v){
-  btnCrearScan.disabled = v;
-  btnCrearScan.textContent = v ? 'Creando…' : 'Crear bobina desde escaneo';
-}
-
-btnCrearScan.addEventListener('click', async ()=>{
-  hide(scanOk); hide(scanErr);
-
-  const codigoVal    = scanCodigo.value.trim().toUpperCase();
-  const proveedorVal = scanProveedor.value.trim();
-  const cantidadNum  = parseInt(scanCantidad.value, 10);
-  const ubiVal       = scanUbicacion.value.trim();
-  const fechaVal     = fecha.value || `${yyyy}-${mm}-${dd}`;
-
-  if(!codigoVal){
-    show(scanErr, 'No hay código detectado. Escaneá primero.');
-    return;
-  }
-  if(!ubiVal){
-    show(scanErr, 'UBICACIÓN es obligatoria para crear la bobina.');
-    return;
-  }
-  if(!Number.isInteger(cantidadNum) || cantidadNum < 1){
-    show(scanErr, 'La cantidad sugerida del Flow no es válida (entero ≥ 1).');
-    return;
-  }
-  if(!FLOW_URL || FLOW_URL === 'PASTE_YOUR_FLOW_URL_HERE'){
-    show(scanErr, '⚠️ Configurá FLOW_URL para poder crear la bobina.');
-    return;
-  }
-
-  const payload = {
-    codigo:           codigoVal,
-    cantidadPorBobina: cantidadNum,
-    proveedor:        proveedorVal,
-    fechaIngreso:     fechaVal,
-    ubicacion:        ubiVal,
-    observacion:      '',
-    numeroBobinas:    NUM_BOBINAS
-  };
-
-  setScanBusy(true);
-  try{
-    const headers = { 'Content-Type':'application/json' };
-    if(API_KEY) headers['x-api-key'] = API_KEY;
-
-    const res = await fetch(FLOW_URL, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload)
+    btnOtrosLimpiar.addEventListener("click", () => {
+      setStatus(statusOtros, null, "");
+      setTodayDate("otros-fecha");
     });
 
-    let data = null;
-    const ct = res.headers.get('content-type') || '';
-    if(ct.includes('application/json')){
-      data = await res.json();
+    // ============================================
+    //  VERTICALIZADA: CARGA DE INFO DESDE SKU
+    // ============================================
+    const formVert = document.getElementById("form-vert");
+    const statusVert = document.getElementById("status-vert");
+    const btnVertCargarInfo = document.getElementById("btn-vert-cargar-info");
+    const btnVertCrear = document.getElementById("btn-vert-crear");
+    const btnVertLimpiar = document.getElementById("btn-vert-limpiar");
+
+    const inputSku = document.getElementById("vert-sku");
+    const inputVertIfr = document.getElementById("vert-ifr");
+    const inputVertCantidad = document.getElementById("vert-cantidad");
+    const inputVertFecha = document.getElementById("vert-fecha");
+    const inputVertProveedor = document.getElementById("vert-proveedor");
+    const inputVertUbicacion = document.getElementById("vert-ubicacion");
+
+    btnVertCargarInfo.addEventListener("click", async () => {
+      setStatus(statusVert, null, "");
+
+      const sku = inputSku.value.trim();
+      if (!sku) {
+        setStatus(statusVert, "err", "Ingresá primero el SKU de la bobina para poder consultar la información.");
+        return;
+      }
+
+      try {
+        disableButton(btnVertCargarInfo, true);
+        setStatus(statusVert, "ok", "Consultando información de la bobina en la base del proveedor…");
+
+        const { ok, data } = await llamarFlujoVerticalizadaInfo(sku);
+
+        if (!ok) {
+          console.error("Respuesta flujo verticalizada (HTTP no ok):", data);
+          setStatus(
+            statusVert,
+            "err",
+            "No se pudo cargar la información de la bobina. Verificá el flujo y el SKU."
+          );
+          return;
+        }
+
+        const okFlag = data.ok === true || data.success === true || typeof data.ifr !== "undefined";
+        if (!okFlag) {
+          console.error("Respuesta flujo verticalizada (sin ok):", data);
+          setStatus(
+            statusVert,
+            "err",
+            "El flujo no devolvió datos válidos para este SKU. Revisá la respuesta en Power Automate."
+          );
+          return;
+        }
+
+        let ifr = data.ifr || data.codigo || data.IFR || "";
+        let cantidad = data.cantidad || data.cantidadSugerida || data.CANTIDAD || "";
+        const fechaIso = data.fecha || data.FECHA || "";
+
+        ifr = String(ifr).toUpperCase();
+        inputVertIfr.value = ifr;
+        inputVertCantidad.value = cantidad;
+
+        if (fechaIso) {
+          const d = new Date(fechaIso);
+          if (!isNaN(d.getTime())) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            inputVertFecha.value = `${y}-${m}-${day}`;
+          } else {
+            inputVertFecha.value = "";
+          }
+        } else {
+          inputVertFecha.value = "";
+        }
+
+        inputVertProveedor.value = "VERTICALIZADA";
+
+        setStatus(
+          statusVert,
+          "ok",
+          "Información de la bobina cargada correctamente. Revisá los datos y luego creá la bobina."
+        );
+      } catch (e) {
+        console.error(e);
+        setStatus(
+          statusVert,
+          "err",
+          "Error llamando al flujo de información de bobina. Revisá la consola del navegador."
+        );
+      } finally {
+        disableButton(btnVertCargarInfo, false);
+      }
+    });
+
+    // ============================================
+    //  VERTICALIZADA: CREAR BOBINA
+    // ============================================
+    btnVertCrear.addEventListener("click", async () => {
+      setStatus(statusVert, null, "");
+
+      const sku = inputSku.value.trim();
+      if (!sku) {
+        setStatus(statusVert, "err", "Ingresá un SKU antes de crear la bobina.");
+        return;
+      }
+      if (!inputVertIfr.value.trim() || !inputVertCantidad.value.trim()) {
+        setStatus(
+          statusVert,
+          "err",
+          "Primero cargá la información de la bobina (botón “Cargar información de bobina”)."
+        );
+        return;
+      }
+
+      const payload = {
+        origen: "VERTICALIZADA",
+        sku: sku.toUpperCase(),
+        ifr: inputVertIfr.value.trim().toUpperCase(),
+        cantidad: inputVertCantidad.value.trim(),
+        fecha: inputVertFecha.value || null,
+        proveedor: "VERTICALIZADA",
+        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || null,
+      };
+
+      try {
+        disableButton(btnVertCrear, true);
+        setStatus(statusVert, "ok", "Creando bobina verticalizada en la BDD…");
+
+        const { ok, data } = await llamarFlujoCrearBobinaVert(payload);
+
+        if (ok && data && (data.ok === true || data.success === true)) {
+          const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
+          setStatus(
+            statusVert,
+            "ok",
+            `Bobina creada exitosamente. ID: <code>${id}</code>`
+          );
+        } else {
+          console.error("Respuesta flujo crear (verticalizada):", data);
+          setStatus(
+            statusVert,
+            "err",
+            "No se pudo crear la bobina verticalizada. Revisá el flujo o los datos enviados."
+          );
+        }
+      } catch (e) {
+        console.error(e);
+        setStatus(
+          statusVert,
+          "err",
+          "Error llamando al flujo de creación. Ver consola del navegador para más detalles."
+        );
+      } finally {
+        disableButton(btnVertCrear, false);
+      }
+    });
+
+    btnVertLimpiar.addEventListener("click", () => {
+      setStatus(statusVert, null, "");
+      inputVertIfr.value = "";
+      inputVertCantidad.value = "";
+      inputVertFecha.value = "";
+      inputVertProveedor.value = "VERTICALIZADA";
+      inputVertUbicacion.value = "";
+      inputSku.value = "";
+    });
+
+    // ============================================
+    //  CÁMARA / BARCODE SCANNER (VERTICALIZADA)
+    // ============================================
+    const cameraContainer = document.getElementById("camera-container");
+    const video = document.getElementById("video");
+    const btnToggleCamera = document.getElementById("btn-toggle-camera");
+    const cameraStatus = document.getElementById("camera-status");
+
+    let stream = null;
+    let scanning = false;
+    let detector = null;
+
+    async function startCamera() {
+      if (stream) return;
+      try {
+        if ("BarcodeDetector" in window) {
+          detector = new BarcodeDetector({
+            formats: ["code_128", "ean_13", "ean_8", "upc_a", "upc_e"],
+          });
+        }
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false,
+        });
+
+        video.srcObject = stream;
+        await video.play();
+
+        scanning = true;
+        cameraContainer.style.display = "block";
+        cameraStatus.textContent = detector
+          ? "Escaneando… apuntá el código de barras dentro del recuadro."
+          : "Escaneando… (sin BarcodeDetector, se necesitaría implementación adicional).";
+
+        btnToggleCamera.textContent = "🛑 Detener cámara";
+
+        if (detector) {
+          requestAnimationFrame(scanFrame);
+        }
+      } catch (e) {
+        console.error("Error al iniciar cámara:", e);
+        cameraStatus.textContent = "No se pudo acceder a la cámara. Revisá permisos del navegador.";
+      }
     }
 
-    if(!res.ok){
-      throw new Error(data?.error || data?.message || res.statusText || `HTTP ${res.status}`);
+    function stopCamera() {
+      scanning = false;
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+      }
+      if (video) {
+        video.srcObject = null;
+      }
+      if (cameraContainer) {
+        cameraContainer.style.display = "none";
+      }
+      if (cameraStatus) {
+        cameraStatus.textContent = "Cámara inactiva.";
+      }
+      if (btnToggleCamera) {
+        btnToggleCamera.textContent = "📷 Activar cámara";
+      }
     }
 
-    const ids = Array.isArray(data?.ids) ? data.ids : [];
-    const cantidadCreada = Number.isFinite(data?.creadas)
-      ? data.creadas
-      : (ids.length || payload.numeroBobinas);
+    async function scanFrame() {
+      if (!scanning || !detector || video.readyState !== HTMLMediaElement.HAVE_ENOUGH_DATA) {
+        if (scanning && detector) {
+          requestAnimationFrame(scanFrame);
+        }
+        return;
+      }
 
-    let html = `✅ Se creó correctamente <strong>${cantidadCreada}</strong> bobina desde escaneo.`;
-    if(ids.length > 0){
-      html += `<br><strong>IDs generados:</strong> ${ids.join(', ')}`;
+      try {
+        const barcodes = await detector.detect(video);
+        if (barcodes && barcodes.length > 0) {
+          const code = barcodes[0].rawValue || "";
+          if (code) {
+            inputSku.value = code.toUpperCase();
+            cameraStatus.textContent = `Código detectado: ${code}`;
+            stopCamera();
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Error detectando código:", e);
+      }
+
+      if (scanning) {
+        requestAnimationFrame(scanFrame);
+      }
     }
-    showHtml(scanOk, html);
-  }catch(e){
-    console.error(e);
-    show(scanErr, `Error al crear la bobina desde escaneo: ${e.message}`);
-  }finally{
-    setScanBusy(false);
-  }
-});
 
-/* Inicialización */
-go('home');
-listCameras().catch(console.error);
-</script>
+    btnToggleCamera.addEventListener("click", () => {
+      if (stream) {
+        stopCamera();
+      } else {
+        startCamera();
+      }
+    });
+  </script>
 </body>
 </html>
-
