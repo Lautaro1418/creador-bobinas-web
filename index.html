@@ -592,7 +592,7 @@
     </section>
   </main>
 
-<script>
+  <script>
     // ============================================
     //  CONFIG: TUS 3 FLOWS
     // ============================================
@@ -705,7 +705,7 @@
       .forEach(toUpperOnInput);
 
     // ============================================
-    //  helper genérico POST + parse
+    //  helper genérico POST + parse (CORREGIDO)
     // ============================================
     async function llamarPOST(url, payload) {
       const resp = await fetch(url, {
@@ -715,17 +715,24 @@
       });
 
       let data;
-      // Intentamos leer el cuerpo como JSON directamente.
+      // Intentamos leer el cuerpo como JSON. Esto fallará con Status 202 si el cuerpo es un recibo vacío.
       try {
         data = await resp.json();
       } catch (e) {
-        console.error("Error al parsear JSON:", e);
-        // Si falla, leemos el cuerpo como texto.
-        data = { raw: await resp.text() };
+        // Si falla el JSON, leemos el cuerpo como texto (o dejamos vacío si no hay texto)
+        try {
+            data = { raw: await resp.text() };
+        } catch (e) {
+            data = {};
+        }
       }
 
+      // FORZAMOS LA VALIDACIÓN: Consideramos 200, 201 y 202 como llamadas exitosas (ok: true)
+      // Esto asegura que la lógica de "creación exitosa" se ejecute para el Status 202 de Power Automate.
+      const isOkStatus = resp.status >= 200 && resp.status < 300;
+      
       console.log("CALL →", url, "status:", resp.status, "data:", data);
-      return { ok: resp.ok, status: resp.status, data };
+      return { ok: isOkStatus, status: resp.status, data }; // Usamos isOkStatus en lugar de resp.ok
     }
 
     // ============================================
@@ -787,21 +794,33 @@
         disableButton(btnOtrosCrear, true);
         setStatus(statusOtros, "ok", "Creando bobina en la BDD…");
 
-        const { ok, data } = await llamarFlujoCrearBobinaOtros(payload);
+        const { ok, data, status } = await llamarFlujoCrearBobinaOtros(payload);
 
-        if (ok && data && (data.ok === true || data.success === true)) {
-          const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
+        // Con llamarPOST corregida, 'ok' será true para 200 y 202
+        if (ok) {
+          let msg = "Bobina enviada para creación. ";
+          let id = "(Pendiente de asignación)";
+
+          if (status === 200 && data) {
+            // Si obtuvimos 200, intentamos leer el ID
+            id = data.bobinaid || data.id || data.codigo || data.ids?.[0] || "(sin ID devuelto)";
+            msg = "Bobina creada exitosamente. ";
+          } else if (status === 202) {
+            // Mensaje para la respuesta 202 asíncrona
+            msg += "El proceso está en curso (Status 202).";
+          }
+
           setStatus(
             statusOtros,
             "ok",
-            `Bobina creada exitosamente. ID: <code>${id}</code>`
+            `${msg} ID: <code>${id}</code>`
           );
         } else {
           console.error("Respuesta flujo crear (otros):", data);
           setStatus(
             statusOtros,
             "err",
-            "No se pudo crear la bobina. Revisá el flujo o los datos enviados."
+            "No se pudo crear la bobina. Revisá el flujo o los datos enviados. (Status: " + status + ")"
           );
         }
       } catch (e) {
@@ -861,14 +880,12 @@
         const { ok, data, status } = await llamarFlujoVerticalizadaInfo(sku);
         console.log("Respuesta flujo verticalizada (raw):", data);
 
-        // --- Lógica de Corrección ---
         // Este flujo DEBE ser síncrono y devolver Status 200 con el JSON de datos.
-        // Si no es 200, pero es 202, le decimos al usuario que hay un problema en la configuración del flujo.
         if (status !== 200) {
           setStatus(
             statusVert,
             "err",
-            `Error HTTP ${status} al consultar. El flujo de información debe responder con Status 200 y el JSON de datos.`
+            `Error HTTP ${status} al consultar. El flujo de información debe responder con Status 200 y el JSON de datos. Revisá la configuración de la Respuesta en Power Automate.`
           );
           return;
         }
@@ -893,7 +910,8 @@
 
         inputVertIfr.value = ifr;
         inputVertCantidad.value = cantidad;
-        inputVertFecha.value = "";
+        // La fecha de ingreso se establece al crear, no al cargar info.
+        inputVertFecha.value = ""; 
         inputVertProveedor.value = (finalPayload.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
 
         setStatus(
@@ -924,6 +942,7 @@
         setStatus(statusVert, "err", "Ingresá un SKU antes de crear la bobina.");
         return;
       }
+      
       // Validamos que la información necesaria esté cargada
       if (!inputVertIfr.value.trim() || !inputVertCantidad.value.trim()) {
         setStatus(
@@ -969,19 +988,17 @@
 
         const { ok, data, status } = await llamarFlujoCrearBobinaVert(payload);
         
-        // Interpretamos 200 (respuesta síncrona con ID) y 202 (ejecución aceptada) como éxito.
-        const isSuccessCall = ok || status === 202;
-
-        if (isSuccessCall) {
+        // Con llamarPOST corregida, 'ok' será TRUE para 200 y 202
+        if (ok) {
           let msg = "Bobina enviada para creación. ";
           let id = "(Pendiente de asignación)";
           
-          if (ok && data) {
-            // Si obtuvimos 200, intentamos leer el ID (data.ids[0] es el más probable según tu JSON)
+          if (status === 200 && data) {
+            // Si obtuvimos 200, intentamos leer el ID (ids[0] es el más probable)
             id = data.bobinaid || data.id || data.codigo || data.ids?.[0] || "(sin ID devuelto)";
             msg = "Bobina creada exitosamente. ";
           } else if (status === 202) {
-            // Mensaje para la respuesta 202
+            // Mensaje para la respuesta 202 asíncrona
             msg += "El proceso está en curso (Status 202).";
           }
 
@@ -992,6 +1009,7 @@
           );
 
         } else {
+          // Esto solo se ejecuta para errores 4xx o 5xx, no para 202.
           console.error("Respuesta flujo crear (verticalizada):", data);
           setStatus(
             statusVert,
