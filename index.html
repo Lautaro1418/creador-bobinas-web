@@ -822,7 +822,7 @@
     });
 
     // ============================================
-    //  VERTICALIZADA: CARGA INFO DESDE SKU
+    //  VERTICALIZADA: CARGA INFO DESDE SKU (CORREGIDO)
     // ============================================
     const formVert = document.getElementById("form-vert");
     const statusVert = document.getElementById("status-vert");
@@ -858,47 +858,42 @@
           "Consultando información de la bobina en la base del proveedor…"
         );
 
-        const { ok, data } = await llamarFlujoVerticalizadaInfo(sku);
-
+        const { ok, data, status } = await llamarFlujoVerticalizadaInfo(sku);
         console.log("Respuesta flujo verticalizada (raw):", data);
 
-        // 🚨 MODIFICACIÓN CLAVE:
-        // Usamos "data" directamente. Si el status es 202, significa que el flujo está corriendo.
-        // Si no está OK (200), asumimos que el JSON esperado es data.
-        const finalPayload = data; 
-        
-        if (!ok) {
+        // --- Lógica de Corrección ---
+        // Este flujo DEBE ser síncrono y devolver Status 200 con el JSON de datos.
+        // Si no es 200, pero es 202, le decimos al usuario que hay un problema en la configuración del flujo.
+        if (status !== 200) {
           setStatus(
             statusVert,
             "err",
-            "No se pudo cargar la información de la bobina (HTTP no OK). Revisá el flujo."
+            `Error HTTP ${status} al consultar. El flujo de información debe responder con Status 200 y el JSON de datos.`
           );
           return;
         }
+        
+        const finalPayload = data; 
         
-        // Validamos que existan las propiedades clave 'codigo' o 'cantidadSugerida'
-        const hasValidData = finalPayload && (finalPayload.codigo || finalPayload.cantidadSugerida);
+        // Validamos que existan las propiedades clave 'ok: true' y los campos de datos.
+        const hasValidData = finalPayload && finalPayload.ok === true && (finalPayload.codigo || finalPayload.cantidadSugerida);
 
         if (!hasValidData) {
           setStatus(
             statusVert,
             "err",
-            "El flujo no devolvió datos válidos para este SKU. Revisá la respuesta en Power Automate."
+            "El flujo no devolvió los datos esperados (cuerpo JSON inválido). Revisá la respuesta."
           );
           return;
         }
 
-        // Mapeo de campos. Usamos 'finalPayload'
+        // Mapeo de campos.
         let ifr = (finalPayload.codigo ?? finalPayload.ifr ?? "").toString().toUpperCase();
         let cantidad = (finalPayload.cantidadSugerida ?? finalPayload.cantidad ?? "").toString();
 
         inputVertIfr.value = ifr;
         inputVertCantidad.value = cantidad;
-
-        // Fecha siempre vacía
         inputVertFecha.value = "";
-
-        // Proveedor desde flujo o por defecto
         inputVertProveedor.value = (finalPayload.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
 
         setStatus(
@@ -919,7 +914,7 @@
     });
 
     // ============================================
-    //  VERTICALIZADA: CREAR BOBINA - BLOQUE CORREGIDO
+    //  VERTICALIZADA: CREAR BOBINA (CORREGIDO)
     // ============================================
     btnVertCrear.addEventListener("click", async () => {
       setStatus(statusVert, null, "");
@@ -956,16 +951,13 @@
       const fechaActual = `${y}-${m}-${d}`;
 
       // --- 2. Construcción del Payload Sincronizado ---
-      // Los nombres de las propiedades coinciden *exactamente* con tu esquema JSON (Flujo 2).
       const payload = {
         sku: sku.toUpperCase(),
-        codigo: inputVertIfr.value.trim().toUpperCase(), // Mapea IFR al campo 'codigo'
-        cantidadPorBobina: cantidadNum, // Mapea 'cantidad' a 'cantidadPorBobina' (INTEGER)
+        codigo: inputVertIfr.value.trim().toUpperCase(),
+        cantidadPorBobina: cantidadNum, 
         proveedor: "VERTICALIZADA",
-        fechaIngreso: fechaActual, // Añade la fecha de hoy, ya que es requerida
-        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || "", // Debe ser string
-        
-        // Campo obligatorio fijo (asumiendo que se crea 1 bobina a la vez)
+        fechaIngreso: fechaActual, 
+        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || "", 
         numeroBobinas: 1 
       };
       
@@ -975,21 +967,36 @@
         disableButton(btnVertCrear, true);
         setStatus(statusVert, "ok", "Creando bobina verticalizada en la BDD…");
 
-        const { ok, data } = await llamarFlujoCrearBobinaVert(payload);
+        const { ok, data, status } = await llamarFlujoCrearBobinaVert(payload);
+        
+        // Interpretamos 200 (respuesta síncrona con ID) y 202 (ejecución aceptada) como éxito.
+        const isSuccessCall = ok || status === 202;
 
-        if (ok && data && (data.ok === true || data.success === true)) {
-          const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
+        if (isSuccessCall) {
+          let msg = "Bobina enviada para creación. ";
+          let id = "(Pendiente de asignación)";
+          
+          if (ok && data) {
+            // Si obtuvimos 200, intentamos leer el ID (data.ids[0] es el más probable según tu JSON)
+            id = data.bobinaid || data.id || data.codigo || data.ids?.[0] || "(sin ID devuelto)";
+            msg = "Bobina creada exitosamente. ";
+          } else if (status === 202) {
+            // Mensaje para la respuesta 202
+            msg += "El proceso está en curso (Status 202).";
+          }
+
           setStatus(
             statusVert,
             "ok",
-            `Bobina creada exitosamente. ID: <code>${id}</code>`
+            `${msg} ID: <code>${id}</code>`
           );
+
         } else {
           console.error("Respuesta flujo crear (verticalizada):", data);
           setStatus(
             statusVert,
             "err",
-            "No se pudo crear la bobina verticalizada. Revisá el flujo (errores internos) o los datos enviados."
+            "No se pudo crear la bobina. Revisá el flujo o los datos enviados. (Status: " + status + ")"
           );
         }
       } catch (e) {
@@ -1014,4 +1021,3 @@
       inputSku.value = "";
     });
   </script>
-  
