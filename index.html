@@ -591,6 +591,7 @@
       </form>
     </section>
   </main>
+
 <script>
     // ============================================
     //  CONFIG: TUS 3 FLOWS
@@ -864,8 +865,8 @@
         // 🚨 MODIFICACIÓN CLAVE:
         // Usamos "data" directamente. Si el status es 202, significa que el flujo está corriendo.
         // Si no está OK (200), asumimos que el JSON esperado es data.
-        const finalPayload = data; 
-        
+        const finalPayload = data; 
+        
         if (!ok) {
           setStatus(
             statusVert,
@@ -874,7 +875,7 @@
           );
           return;
         }
-        
+        
         // Validamos que existan las propiedades clave 'codigo' o 'cantidadSugerida'
         const hasValidData = finalPayload && (finalPayload.codigo || finalPayload.cantidadSugerida);
 
@@ -918,7 +919,7 @@
     });
 
     // ============================================
-    //  VERTICALIZADA: CREAR BOBINA
+    //  VERTICALIZADA: CREAR BOBINA - BLOQUE CORREGIDO
     // ============================================
     btnVertCrear.addEventListener("click", async () => {
       setStatus(statusVert, null, "");
@@ -928,6 +929,7 @@
         setStatus(statusVert, "err", "Ingresá un SKU antes de crear la bobina.");
         return;
       }
+      // Validamos que la información necesaria esté cargada
       if (!inputVertIfr.value.trim() || !inputVertCantidad.value.trim()) {
         setStatus(
           statusVert,
@@ -937,15 +939,37 @@
         return;
       }
 
+      // --- 1. Preparar y validar datos para el esquema de Power Automate ---
+      const cantidadStr = inputVertCantidad.value.trim();
+      const cantidadNum = parseInt(cantidadStr, 10);
+      
+      if (isNaN(cantidadNum)) {
+        setStatus(statusVert, "err", "La cantidad debe ser un número entero válido.");
+        return;
+      }
+
+      // Obtener la fecha actual en formato AAAA-MM-DD para 'fechaIngreso' (requerido como string)
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      const fechaActual = `${y}-${m}-${d}`;
+
+      // --- 2. Construcción del Payload Sincronizado ---
+      // Los nombres de las propiedades coinciden *exactamente* con tu esquema JSON (Flujo 2).
       const payload = {
-        origen: "VERTICALIZADA",
         sku: sku.toUpperCase(),
-        ifr: inputVertIfr.value.trim().toUpperCase(),
-        cantidad: inputVertCantidad.value.trim(),
-        fecha: null, // ignoramos fecha
+        codigo: inputVertIfr.value.trim().toUpperCase(), // Mapea IFR al campo 'codigo'
+        cantidadPorBobina: cantidadNum, // Mapea 'cantidad' a 'cantidadPorBobina' (INTEGER)
         proveedor: "VERTICALIZADA",
-        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || null,
+        fechaIngreso: fechaActual, // Añade la fecha de hoy, ya que es requerida
+        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || "", // Debe ser string
+        
+        // Campo obligatorio fijo (asumiendo que se crea 1 bobina a la vez)
+        numeroBobinas: 1 
       };
+      
+      console.log("PAYLOAD CREADOR (Sincronizado):", payload);
 
       try {
         disableButton(btnVertCrear, true);
@@ -965,7 +989,7 @@
           setStatus(
             statusVert,
             "err",
-            "No se pudo crear la bobina verticalizada. Revisá el flujo o los datos enviados."
+            "No se pudo crear la bobina verticalizada. Revisá el flujo (errores internos) o los datos enviados."
           );
         }
       } catch (e) {
@@ -990,5 +1014,4 @@
       inputSku.value = "";
     });
   </script>
- 
-
+  
