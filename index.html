@@ -411,14 +411,14 @@
           <h3>Bobinas Verticalizadas</h3>
           <p>
             Ingresá el <strong>SKU único</strong> de la bobina, cargá la información desde la base 
-            del proveedor vía Power Automate y confirmá la creación. Ideal para flujo automatizado donde la info viene “de fábrica”.
+            del proveedor vía Power Automate y confirmá la creación.
           </p>
         </div>
         <div class="card">
           <h3>Otros Proveedores</h3>
           <p>
             Para proveedores externos o casos especiales donde cargás datos manualmente: IFR, cantidad,
-            fecha, proveedor y número de bobinas. Se validan todos los campos obligatorios antes de crear.
+            fecha, proveedor y número de bobinas.
           </p>
         </div>
       </div>
@@ -592,9 +592,9 @@
   </main>
 
   <script>
-    // ============================================
-    //  CONFIGURAR ESTAS TRES CONSTANTES
-    // ============================================
+    // =====================================================
+    //  CONFIGURAR ESTAS TRES CONSTANTES (URL DE FLOWS)
+    // =====================================================
     // 1) Crear bobina desde pestaña "Otros Proveedores"
     const FLOW_URL_CREAR_OTROS =
       "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";
@@ -603,13 +603,13 @@
     const FLOW_URL_CREAR_VERT =
       "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f337efd272244632a9331670dc150286/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UqusVLipO8E3x5WaRr_9t8XVN0FyTzRGByvHBMr3xlM";
 
-    // 3) Cargar info de bobina (Verticalizada) a partir del SKU/código
+    // 3) Cargar info de bobina (Verticalizada) a partir del SKU
     const FLOW_URL_VERTICALIZADA_INFO =
       "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";
 
-    // ============================================
-    //  NAVEGACIÓN ENTRE PANTALLAS + BOTÓN TOP
-    // ============================================
+    // =====================================================
+    //  NAVEGACIÓN ENTRE PANTALLAS + BOTÓN HOME
+    // =====================================================
     const screens = {
       home: document.getElementById("screen-home"),
       otros: document.getElementById("screen-otros"),
@@ -653,9 +653,9 @@
 
     updateTopHome("home");
 
-    // ============================================
+    // =====================================================
     //  UTILIDADES DE ESTADO / MENSAJES
-    // ============================================
+    // =====================================================
     function setStatus(el, type, msg) {
       if (!el) return;
       el.classList.remove("ok", "err", "visible");
@@ -678,13 +678,12 @@
       btn.disabled = disabled;
     }
 
-    // ============================================
+    // =====================================================
     //  FECHA ACTUAL POR DEFECTO (Otros)
-    // ============================================
+    // =====================================================
     function setTodayDate(inputId) {
       const el = document.getElementById(inputId);
-      if (!el) return;
-      if (el.value) return;
+      if (!el || el.value) return;
       const now = new Date();
       const y = now.getFullYear();
       const m = String(now.getMonth() + 1).padStart(2, "0");
@@ -693,9 +692,9 @@
     }
     setTodayDate("otros-fecha");
 
-    // ============================================
+    // =====================================================
     //  FORZAR MAYÚSCULAS EN CAMPOS DE TEXTO
-    // ============================================
+    // =====================================================
     function toUpperOnInput(id) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -707,9 +706,9 @@
     ["otros-ifr", "otros-proveedor", "otros-ubicacion", "vert-sku", "vert-ifr", "vert-ubicacion"]
       .forEach(toUpperOnInput);
 
-    // ============================================
+    // =====================================================
     //  LLAMADAS FETCH A POWER AUTOMATE
-    // ============================================
+    // =====================================================
     // Crear bobina - OTROS PROVEEDORES
     async function llamarFlujoCrearBobinaOtros(payload) {
       const resp = await fetch(FLOW_URL_CREAR_OTROS, {
@@ -738,9 +737,10 @@
       return { ok: resp.ok, status: resp.status, data };
     }
 
-    // Cargar info de bobina (VERTICALIZADA) desde SKU/código
+    // Cargar info de bobina (VERTICALIZADA) desde SKU
     async function llamarFlujoVerticalizadaInfo(sku) {
-      const payload = { codigo: sku }; // 👈 el trigger espera "codigo"
+      // 👈 El trigger del flujo espera "sku"
+      const payload = { sku: sku };
 
       const resp = await fetch(FLOW_URL_VERTICALIZADA_INFO, {
         method: "POST",
@@ -756,9 +756,9 @@
       return { ok: resp.ok, status: resp.status, data };
     }
 
-    // ============================================
+    // =====================================================
     //  OTROS PROVEEDORES: LÓGICA
-    // ============================================
+    // =====================================================
     const formOtros = document.getElementById("form-otros");
     const statusOtros = document.getElementById("status-otros");
     const btnOtrosCrear = document.getElementById("btn-otros-crear");
@@ -832,115 +832,113 @@
       setTodayDate("otros-fecha");
     });
 
-    // ============================================
+    // =====================================================
     //  VERTICALIZADA: CARGA DE INFO DESDE SKU
-    // ============================================
-const formVert = document.getElementById("form-vert");
-const statusVert = document.getElementById("status-vert");
-const btnVertCargarInfo = document.getElementById("btn-vert-cargar-info");
-const btnVertCrear = document.getElementById("btn-vert-crear");
-const btnVertLimpiar = document.getElementById("btn-vert-limpiar");
+    // =====================================================
+    const formVert = document.getElementById("form-vert");
+    const statusVert = document.getElementById("status-vert");
+    const btnVertCargarInfo = document.getElementById("btn-vert-cargar-info");
+    const btnVertCrear = document.getElementById("btn-vert-crear");
+    const btnVertLimpiar = document.getElementById("btn-vert-limpiar");
 
-const inputSku = document.getElementById("vert-sku");
-const inputVertIfr = document.getElementById("vert-ifr");
-const inputVertCantidad = document.getElementById("vert-cantidad");
-const inputVertFecha = document.getElementById("vert-fecha");
-const inputVertProveedor = document.getElementById("vert-proveedor");
-const inputVertUbicacion = document.getElementById("vert-ubicacion");
+    const inputSku = document.getElementById("vert-sku");
+    const inputVertIfr = document.getElementById("vert-ifr");
+    const inputVertCantidad = document.getElementById("vert-cantidad");
+    const inputVertFecha = document.getElementById("vert-fecha");
+    const inputVertProveedor = document.getElementById("vert-proveedor");
+    const inputVertUbicacion = document.getElementById("vert-ubicacion");
 
-btnVertCargarInfo.addEventListener("click", async () => {
-  setStatus(statusVert, null, "");
+    btnVertCargarInfo.addEventListener("click", async () => {
+      setStatus(statusVert, null, "");
 
-  const sku = inputSku.value.trim();
-  if (!sku) {
-    setStatus(
-      statusVert,
-      "err",
-      "Ingresá primero el SKU de la bobina para poder consultar la información."
-    );
-    return;
-  }
-
-  try {
-    disableButton(btnVertCargarInfo, true);
-    setStatus(
-      statusVert,
-      "ok",
-      "Consultando información de la bobina en la base del proveedor…"
-    );
-
-    const { ok, data } = await llamarFlujoVerticalizadaInfo(sku);
-
-    console.log("Respuesta flujo verticalizada:", data);
-
-    // Si el HTTP no fue 2xx => error
-    if (!ok) {
-      setStatus(
-        statusVert,
-        "err",
-        "No se pudo cargar la información de la bobina (HTTP no OK). Revisá el flujo."
-      );
-      return;
-    }
-
-    // Validamos que venga al menos 'codigo' (o 'ifr')
-    if (!data || (typeof data.codigo === "undefined" && typeof data.ifr === "undefined")) {
-      setStatus(
-        statusVert,
-        "err",
-        "El flujo no devolvió datos válidos para este SKU. Revisá la respuesta en Power Automate."
-      );
-      return;
-    }
-
-    // Mapeo de campos:
-    //  - IFR   <= codigo (o ifr)
-    //  - Cant. <= cantidadSugerida (o cantidad)
-    let ifr = (data.codigo ?? data.ifr ?? "").toString().toUpperCase();
-    let cantidad = (data.cantidadSugerida ?? data.cantidad ?? "").toString();
-    let fechaIso = data.fecha ?? data.FECHA ?? "";
-
-    inputVertIfr.value = ifr;
-    inputVertCantidad.value = cantidad;
-
-    // Si en algún momento decidís devolver fecha desde el flujo, esto la formatea a yyyy-mm-dd
-    if (fechaIso) {
-      const d = new Date(fechaIso);
-      if (!isNaN(d.getTime())) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-        inputVertFecha.value = `${y}-${m}-${day}`;
-      } else {
-        inputVertFecha.value = "";
+      const sku = inputSku.value.trim();
+      if (!sku) {
+        setStatus(
+          statusVert,
+          "err",
+          "Ingresá primero el SKU de la bobina para poder consultar la información."
+        );
+        return;
       }
-    } else {
-      inputVertFecha.value = "";
-    }
 
-    inputVertProveedor.value = (data.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
+      try {
+        disableButton(btnVertCargarInfo, true);
+        setStatus(
+          statusVert,
+          "ok",
+          "Consultando información de la bobina en la base del proveedor…"
+        );
 
-    setStatus(
-      statusVert,
-      "ok",
-      "Información de la bobina cargada correctamente. Revisá los datos y luego creá la bobina."
-    );
-  } catch (e) {
-    console.error(e);
-    setStatus(
-      statusVert,
-      "err",
-      "Error llamando al flujo de información de bobina. Revisá la consola del navegador."
-    );
-  } finally {
-    disableButton(btnVertCargarInfo, false);
-  }
-});
+        const { ok, data } = await llamarFlujoVerticalizadaInfo(sku);
 
+        console.log("Respuesta flujo verticalizada:", data);
 
-    // ============================================
+        if (!ok) {
+          setStatus(
+            statusVert,
+            "err",
+            "No se pudo cargar la información de la bobina (HTTP no OK). Revisá el flujo."
+          );
+          return;
+        }
+
+        // Validamos que venga al menos 'codigo' (o 'ifr')
+        if (!data || (typeof data.codigo === "undefined" && typeof data.ifr === "undefined")) {
+          setStatus(
+            statusVert,
+            "err",
+            "El flujo no devolvió datos válidos para este SKU. Revisá la respuesta en Power Automate."
+          );
+          return;
+        }
+
+        // Mapeo de campos:
+        //  - IFR   <= codigo (o ifr)
+        //  - Cant. <= cantidadSugerida (o cantidad)
+        let ifr = (data.codigo ?? data.ifr ?? "").toString().toUpperCase();
+        let cantidad = (data.cantidadSugerida ?? data.cantidad ?? "").toString();
+        let fechaIso = data.fecha ?? data.FECHA ?? "";
+
+        inputVertIfr.value = ifr;
+        inputVertCantidad.value = cantidad;
+
+        // Si más adelante el flujo devuelve fecha, la formateamos (yyyy-mm-dd)
+        if (fechaIso) {
+          const d = new Date(fechaIso);
+          if (!isNaN(d.getTime())) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            inputVertFecha.value = `${y}-${m}-${day}`;
+          } else {
+            inputVertFecha.value = "";
+          }
+        } else {
+          inputVertFecha.value = "";
+        }
+
+        inputVertProveedor.value = (data.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
+
+        setStatus(
+          statusVert,
+          "ok",
+          "Información de la bobina cargada correctamente. Revisá los datos y luego creá la bobina."
+        );
+      } catch (e) {
+        console.error(e);
+        setStatus(
+          statusVert,
+          "err",
+          "Error llamando al flujo de información de bobina. Revisá la consola del navegador."
+        );
+      } finally {
+        disableButton(btnVertCargarInfo, false);
+      }
+    });
+
+    // =====================================================
     //  VERTICALIZADA: CREAR BOBINA
-    // ============================================
+    // =====================================================
     btnVertCrear.addEventListener("click", async () => {
       setStatus(statusVert, null, "");
 
@@ -1013,4 +1011,5 @@ btnVertCargarInfo.addEventListener("click", async () => {
   </script>
 </body>
 </html>
+
 
