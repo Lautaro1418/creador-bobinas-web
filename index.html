@@ -383,94 +383,6 @@
       padding: 1px 4px;
       border-radius: 4px;
     }
-
-    /* Cámara / escáner */
-    .camera-box {
-      margin-top: 10px;
-      border-radius: 12px;
-      border: 1px dashed #cbd5f5;
-      background: #eef2ff;
-      padding: 10px;
-      font-size: 0.78rem;
-    }
-
-    .camera-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .camera-header span {
-      font-weight: 500;
-      color: #3730a3;
-      font-size: 0.8rem;
-    }
-
-    .camera-note {
-      font-size: 0.7rem;
-      color: #4f46e5;
-      margin-bottom: 6px;
-    }
-
-    .camera-view {
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #111827;
-      max-height: 260px;
-    }
-
-    video {
-      width: 100%;
-      display: block;
-      transform: scaleX(-1);
-    }
-
-    .scan-overlay {
-      position: absolute;
-      inset: 0;
-      border: 2px dashed rgba(248, 250, 252, 0.55);
-      box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.7);
-      pointer-events: none;
-    }
-
-    .scan-overlay::after {
-      content: "";
-      position: absolute;
-      left: 10%;
-      right: 10%;
-      top: 50%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #fbbf24, transparent);
-      box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
-      animation: scanline 2s linear infinite;
-    }
-
-    @keyframes scanline {
-      0% { transform: translateY(-80px); opacity: 0; }
-      20% { opacity: 1; }
-      80% { transform: translateY(80px); opacity: 1; }
-      100% { opacity: 0; }
-    }
-
-    .camera-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-top: 6px;
-      font-size: 0.7rem;
-      color: #4b5563;
-    }
-
-    .badge-soft {
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.06);
-      padding: 2px 8px;
-      font-size: 0.68rem;
-    }
   </style>
 </head>
 <body>
@@ -498,7 +410,7 @@
         <div class="card">
           <h3>Bobinas Verticalizadas</h3>
           <p>
-            Ingresá o escaneá el <strong>SKU único</strong> de la bobina, cargá la información desde la base 
+            Ingresá el <strong>SKU único</strong> de la bobina, cargá la información desde la base 
             del proveedor vía Power Automate y confirmá la creación. Ideal para flujo automatizado donde la info viene “de fábrica”.
           </p>
         </div>
@@ -599,40 +511,20 @@
         Verticalizada
       </div>
       <div class="screen-subtitle">
-        Ingresá el <strong>SKU único</strong> de la bobina (teclado, lector externo o cámara).
+        Ingresá el <strong>SKU único</strong> de la bobina.
         Luego presioná <strong>“Cargar información de bobina”</strong> para que el flujo de Power Automate
         consulte la base del proveedor y complete los datos automáticamente.
       </div>
 
-      <!-- SKU + escáner -->
+      <!-- SKU -->
       <div class="field">
         <label for="vert-sku">
           SKU único de bobina <span class="req">*</span>
         </label>
-        <input id="vert-sku" name="sku" required placeholder="Escaneá con lector o escribí el SKU..." />
+        <input id="vert-sku" name="sku" required placeholder="Escribí o escaneá el SKU con lector externo..." />
         <small>
-          Podés usar: lector de código de barras USB / BT (como teclado) o el escáner por cámara.
+          Podés usar un lector de código de barras USB / Bluetooth (actúa como teclado).
         </small>
-      </div>
-
-      <div class="camera-box">
-        <div class="camera-header">
-          <span>Escaneo con cámara</span>
-          <button type="button" id="btn-toggle-camera" class="btn btn-outline">
-            📷 Activar cámara
-          </button>
-        </div>
-        <div class="camera-note">
-          Al detectar un código válido se completará automáticamente el campo SKU y la cámara se detendrá.
-        </div>
-        <div id="camera-container" class="camera-view" style="display:none;">
-          <video id="video" playsinline></video>
-          <div class="scan-overlay"></div>
-        </div>
-        <div class="camera-footer">
-          <span class="badge-soft">Usa <code>BarcodeDetector</code> si está disponible.</span>
-          <span id="camera-status">Cámara inactiva.</span>
-        </div>
       </div>
 
       <div class="btn-row" style="margin-top:12px;">
@@ -741,9 +633,6 @@
         el.classList.toggle("active", key === name);
       });
       updateTopHome(name);
-      if (name !== "vert") {
-        stopCamera();
-      }
     }
 
     document.querySelectorAll("[data-screen-jump]").forEach(btn => {
@@ -825,7 +714,7 @@
         body: JSON.stringify(payload),
       });
       const data = await resp.json().catch(() => ({}));
-      return { ok: resp.ok, data };
+      return { ok: resp.ok, status: resp.status, data };
     }
 
     // Crear bobina - VERTICALIZADA
@@ -836,18 +725,31 @@
         body: JSON.stringify(payload),
       });
       const data = await resp.json().catch(() => ({}));
-      return { ok: resp.ok, data };
+      return { ok: resp.ok, status: resp.status, data };
     }
 
     // Cargar info de bobina (VERTICALIZADA) desde SKU
     async function llamarFlujoVerticalizadaInfo(sku) {
+      const payload = { sku: sku, codigo: sku };  // mando ambas propiedades
+
       const resp = await fetch(FLOW_URL_VERTICALIZADA_INFO, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sku }),
+        body: JSON.stringify(payload),
       });
-      const data = await resp.json().catch(() => ({}));
-      return { ok: resp.ok, data };
+
+      const texto = await resp.text();
+      let data;
+      try {
+        data = JSON.parse(texto);
+      } catch {
+        data = { raw: texto };
+      }
+
+      console.log("Verticalizada INFO → status:", resp.status);
+      console.log("Verticalizada INFO → data:", data);
+
+      return { ok: resp.ok, status: resp.status, data };
     }
 
     // ============================================
@@ -892,7 +794,7 @@
         disableButton(btnOtrosCrear, true);
         setStatus(statusOtros, "ok", "Creando bobina en la BDD…");
 
-        const { ok, data } = await llamarFlujoCrearBobinaOtros(payload);
+        const { ok, status, data } = await llamarFlujoCrearBobinaOtros(payload);
 
         if (ok && data && (data.ok === true || data.success === true)) {
           const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
@@ -902,11 +804,11 @@
             `Bobina creada exitosamente. ID: <code>${id}</code>`
           );
         } else {
-          console.error("Respuesta flujo crear (otros):", data);
+          console.error("Respuesta flujo crear (otros):", status, data);
           setStatus(
             statusOtros,
             "err",
-            "No se pudo crear la bobina. Revisá el flujo o los datos enviados."
+            `No se pudo crear la bobina (HTTP ${status}). Revisá el flujo o los datos enviados.`
           );
         }
       } catch (e) {
@@ -955,21 +857,21 @@
         disableButton(btnVertCargarInfo, true);
         setStatus(statusVert, "ok", "Consultando información de la bobina en la base del proveedor…");
 
-        const { ok, data } = await llamarFlujoVerticalizadaInfo(sku);
+        const { ok, status, data } = await llamarFlujoVerticalizadaInfo(sku);
 
         if (!ok) {
-          console.error("Respuesta flujo verticalizada (HTTP no ok):", data);
+          console.error("HTTP no ok al cargar info verticalizada:", status, data);
           setStatus(
             statusVert,
             "err",
-            "No se pudo cargar la información de la bobina. Verificá el flujo y el SKU."
+            `No se pudo cargar la información de la bobina (HTTP ${status}). Verificá el flujo y el SKU.`
           );
           return;
         }
 
         const okFlag = data.ok === true || data.success === true || typeof data.ifr !== "undefined";
         if (!okFlag) {
-          console.error("Respuesta flujo verticalizada (sin ok):", data);
+          console.error("Respuesta flujo verticalizada (sin ok explícito):", data);
           setStatus(
             statusVert,
             "err",
@@ -1053,7 +955,7 @@
         disableButton(btnVertCrear, true);
         setStatus(statusVert, "ok", "Creando bobina verticalizada en la BDD…");
 
-        const { ok, data } = await llamarFlujoCrearBobinaVert(payload);
+        const { ok, status, data } = await llamarFlujoCrearBobinaVert(payload);
 
         if (ok && data && (data.ok === true || data.success === true)) {
           const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
@@ -1063,11 +965,11 @@
             `Bobina creada exitosamente. ID: <code>${id}</code>`
           );
         } else {
-          console.error("Respuesta flujo crear (verticalizada):", data);
+          console.error("Respuesta flujo crear (verticalizada):", status, data);
           setStatus(
             statusVert,
             "err",
-            "No se pudo crear la bobina verticalizada. Revisá el flujo o los datos enviados."
+            `No se pudo crear la bobina verticalizada (HTTP ${status}). Revisá el flujo o los datos enviados.`
           );
         }
       } catch (e) {
@@ -1091,109 +993,6 @@
       inputVertUbicacion.value = "";
       inputSku.value = "";
     });
-
-    // ============================================
-    //  CÁMARA / BARCODE SCANNER (VERTICALIZADA)
-    // ============================================
-    const cameraContainer = document.getElementById("camera-container");
-    const video = document.getElementById("video");
-    const btnToggleCamera = document.getElementById("btn-toggle-camera");
-    const cameraStatus = document.getElementById("camera-status");
-
-    let stream = null;
-    let scanning = false;
-    let detector = null;
-
-    async function startCamera() {
-      if (stream) return;
-      try {
-        if ("BarcodeDetector" in window) {
-          detector = new BarcodeDetector({
-            formats: ["code_128", "ean_13", "ean_8", "upc_a", "upc_e"],
-          });
-        }
-
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-          audio: false,
-        });
-
-        video.srcObject = stream;
-        await video.play();
-
-        scanning = true;
-        cameraContainer.style.display = "block";
-        cameraStatus.textContent = detector
-          ? "Escaneando… apuntá el código de barras dentro del recuadro."
-          : "Escaneando… (sin BarcodeDetector, se necesitaría implementación adicional).";
-
-        btnToggleCamera.textContent = "🛑 Detener cámara";
-
-        if (detector) {
-          requestAnimationFrame(scanFrame);
-        }
-      } catch (e) {
-        console.error("Error al iniciar cámara:", e);
-        cameraStatus.textContent = "No se pudo acceder a la cámara. Revisá permisos del navegador.";
-      }
-    }
-
-    function stopCamera() {
-      scanning = false;
-      if (stream) {
-        stream.getTracks().forEach(t => t.stop());
-        stream = null;
-      }
-      if (video) {
-        video.srcObject = null;
-      }
-      if (cameraContainer) {
-        cameraContainer.style.display = "none";
-      }
-      if (cameraStatus) {
-        cameraStatus.textContent = "Cámara inactiva.";
-      }
-      if (btnToggleCamera) {
-        btnToggleCamera.textContent = "📷 Activar cámara";
-      }
-    }
-
-    async function scanFrame() {
-      if (!scanning || !detector || video.readyState !== HTMLMediaElement.HAVE_ENOUGH_DATA) {
-        if (scanning && detector) {
-          requestAnimationFrame(scanFrame);
-        }
-        return;
-      }
-
-      try {
-        const barcodes = await detector.detect(video);
-        if (barcodes && barcodes.length > 0) {
-          const code = barcodes[0].rawValue || "";
-          if (code) {
-            inputSku.value = code.toUpperCase();
-            cameraStatus.textContent = `Código detectado: ${code}`;
-            stopCamera();
-            return;
-          }
-        }
-      } catch (e) {
-        console.error("Error detectando código:", e);
-      }
-
-      if (scanning) {
-        requestAnimationFrame(scanFrame);
-      }
-    }
-
-    btnToggleCamera.addEventListener("click", () => {
-      if (stream) {
-        stopCamera();
-      } else {
-        startCamera();
-      }
-    });
   </script>
 </body>
 </html>
-
