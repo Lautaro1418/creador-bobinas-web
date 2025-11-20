@@ -591,8 +591,7 @@
       </form>
     </section>
   </main>
-
-  <script>
+<script>
     // ============================================
     //  CONFIG: TUS 3 FLOWS
     // ============================================
@@ -714,9 +713,15 @@
         body: JSON.stringify(payload),
       });
 
-      const text = await resp.text();
       let data;
-      try { data = JSON.parse(text); } catch { data = { raw: text }; }
+      // Intentamos leer el cuerpo como JSON directamente.
+      try {
+        data = await resp.json();
+      } catch (e) {
+        console.error("Error al parsear JSON:", e);
+        // Si falla, leemos el cuerpo como texto.
+        data = { raw: await resp.text() };
+      }
 
       console.log("CALL →", url, "status:", resp.status, "data:", data);
       return { ok: resp.ok, status: resp.status, data };
@@ -856,22 +861,10 @@
 
         console.log("Respuesta flujo verticalizada (raw):", data);
 
-        // 🚨 MODIFICACIÓN CLAVE: Obtener el payload correcto
-        // Aseguramos que el payload es el objeto que contiene 'codigo', que puede estar directamente en 'data' o en 'data.body'
-        // Usamos 'data.body' si existe, si no, usamos 'data'
-        const payload = data && data.body ? data.body : data;
-        
-        // Convertimos el payload de texto (si es raw) a JSON si es necesario y posible
-        let finalPayload = payload;
-        if(typeof finalPayload === 'string') {
-            try {
-                finalPayload = JSON.parse(finalPayload);
-            } catch (e) {
-                console.warn("Payload is raw string and could not be parsed as JSON. Using original payload.");
-                // Si el JSON.parse falla, volvemos al string original
-                finalPayload = payload;
-            }
-        }
+        // 🚨 MODIFICACIÓN CLAVE:
+        // Usamos "data" directamente. Si el status es 202, significa que el flujo está corriendo.
+        // Si no está OK (200), asumimos que el JSON esperado es data.
+        const finalPayload = data; 
         
         if (!ok) {
           setStatus(
@@ -997,3 +990,4 @@
       inputSku.value = "";
     });
   </script>
+ 
