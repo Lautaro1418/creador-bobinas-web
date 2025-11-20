@@ -593,396 +593,407 @@
   </main>
 
   <script>
-    // ============================================
-    //  CONFIG: TUS 3 FLOWS
-    // ============================================
-    const FLOW_URL_CREAR_OTROS =
-      "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";
+    // ============================================
+    //  CONFIG: TUS 3 FLOWS
+    // ============================================
+    const FLOW_URL_CREAR_OTROS =
+      "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b0182b711a54eb3883a94c0f3ee0dd6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EcpL7k933BlVSFJiI2Ubh5uKR_chYo-rItI9nmmgelQ";
 
-    const FLOW_URL_CREAR_VERT =
-      "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f337efd272244632a9331670dc150286/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UqusVLipO8E3x5WaRr_9t8XVN0FyTzRGByvHBMr3xlM";
+    const FLOW_URL_CREAR_VERT =
+      "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f337efd272244632a9331670dc150286/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UqusVLipO8E3x5WaRr_9t8XVN0FyTzRGByvHBMr3xlM";
 
-    const FLOW_URL_VERTICALIZADA_INFO =
-      "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";
+    const FLOW_URL_VERTICALIZADA_INFO =
+      "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7db16337d76245078f1e7d079ccd3b86/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bviGgsVixKAZcoSCEUbTNMzco7kNPFREc_rK9UfhLcQ";
 
-    // ============================================
-    //  NAVEGACIÓN
-    // ============================================
-    const screens = {
-      home: document.getElementById("screen-home"),
-      otros: document.getElementById("screen-otros"),
-      vert: document.getElementById("screen-vert"),
-    };
+    // ============================================
+    //  NAVEGACIÓN
+    // ============================================
+    const screens = {
+      home: document.getElementById("screen-home"),
+      otros: document.getElementById("screen-otros"),
+      vert: document.getElementById("screen-vert"),
+    };
 
-    const btnHomeTop = document.getElementById("btn-home-top");
-    const btnHomeTopLabel = btnHomeTop.querySelector(".label");
+    const btnHomeTop = document.getElementById("btn-home-top");
+    const btnHomeTopLabel = btnHomeTop.querySelector(".label");
 
-    function updateTopHome(name) {
-      if (name === "home") {
-        btnHomeTop.classList.remove("active");
-        btnHomeTop.disabled = true;
-        btnHomeTopLabel.textContent = "Inicio";
-      } else {
-        btnHomeTop.classList.add("active");
-        btnHomeTop.disabled = false;
-        btnHomeTopLabel.textContent = "Ir a Inicio";
-      }
-    }
+    function updateTopHome(name) {
+      if (name === "home") {
+        btnHomeTop.classList.remove("active");
+        btnHomeTop.disabled = true;
+        btnHomeTopLabel.textContent = "Inicio";
+      } else {
+        btnHomeTop.classList.add("active");
+        btnHomeTop.disabled = false;
+        btnHomeTopLabel.textContent = "Ir a Inicio";
+      }
+    }
 
-    function showScreen(name) {
-      Object.entries(screens).forEach(([key, el]) => {
-        el.classList.toggle("active", key === name);
-      });
-      updateTopHome(name);
-    }
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => {
+        el.classList.toggle("active", key === name);
+      });
+      updateTopHome(name);
+    }
 
-    document.querySelectorAll("[data-screen-jump]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.screenJump;
-        showScreen(target);
-      });
-    });
+    document.querySelectorAll("[data-screen-jump]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.screenJump;
+        showScreen(target);
+      });
+    });
 
-    btnHomeTop.addEventListener("click", () => {
-      if (!btnHomeTop.disabled) {
-        showScreen("home");
-      }
-    });
+    btnHomeTop.addEventListener("click", () => {
+      if (!btnHomeTop.disabled) {
+        showScreen("home");
+      }
+    });
 
-    updateTopHome("home");
+    updateTopHome("home");
 
-    // ============================================
-    //  STATUS helpers
-    // ============================================
-    function setStatus(el, type, msg) {
-      if (!el) return;
-      el.classList.remove("ok", "err", "visible");
+    // ============================================
+    //  STATUS helpers
+    // ============================================
+    function setStatus(el, type, msg) {
+      if (!el) return;
+      el.classList.remove("ok", "err", "visible");
 
-      if (!msg) return; // limpiar
+      if (!msg) return; // limpiar
 
-      el.classList.add("visible");
-      if (type === "ok") {
-        el.classList.add("ok");
-        el.querySelector(".icon").textContent = "✅";
-      } else if (type === "err") {
-        el.classList.add("err");
-        el.querySelector(".icon").textContent = "⚠️";
-      }
-      el.querySelector(".msg").innerHTML = msg;
-    }
+      el.classList.add("visible");
+      if (type === "ok") {
+        el.classList.add("ok");
+        el.querySelector(".icon").textContent = "✅";
+      } else if (type === "err") {
+        el.classList.add("err");
+        el.querySelector(".icon").textContent = "⚠️";
+      }
+      el.querySelector(".msg").innerHTML = msg;
+    }
 
-    function disableButton(btn, disabled) {
-      if (!btn) return;
-      btn.disabled = disabled;
-    }
+    function disableButton(btn, disabled) {
+      if (!btn) return;
+      btn.disabled = disabled;
+    }
 
-    // ============================================
-    //  FECHA HOY para OTROS (si está vacía)
-    // ============================================
-    function setTodayDate(inputId) {
-      const el = document.getElementById(inputId);
-      if (!el || el.value) return;
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
-      el.value = `${y}-${m}-${d}`;
-    }
-    setTodayDate("otros-fecha");
+    // ============================================
+    //  FECHA HOY para OTROS (si está vacía)
+    // ============================================
+    function setTodayDate(inputId) {
+      const el = document.getElementById(inputId);
+      if (!el || el.value) return;
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      el.value = `${y}-${m}-${d}`;
+    }
+    setTodayDate("otros-fecha");
 
-    // ============================================
-    //  MAYÚSCULAS
-    // ============================================
-    function toUpperOnInput(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener("input", () => {
-        el.value = el.value.toUpperCase();
-      });
-    }
+    // ============================================
+    //  MAYÚSCULAS
+    // ============================================
+    function toUpperOnInput(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("input", () => {
+        el.value = el.value.toUpperCase();
+      });
+    }
 
-    ["otros-ifr", "otros-proveedor", "otros-ubicacion", "vert-sku", "vert-ifr", "vert-ubicacion"]
-      .forEach(toUpperOnInput);
+    ["otros-ifr", "otros-proveedor", "otros-ubicacion", "vert-sku", "vert-ifr", "vert-ubicacion"]
+      .forEach(toUpperOnInput);
 
-    // ============================================
-    //  helper genérico POST + parse
-    // ============================================
-    async function llamarPOST(url, payload) {
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    // ============================================
+    //  helper genérico POST + parse
+    // ============================================
+    async function llamarPOST(url, payload) {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-      const text = await resp.text();
-      let data;
-      try { data = JSON.parse(text); } catch { data = { raw: text }; }
+      const text = await resp.text();
+      let data;
+      try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
-      console.log("CALL →", url, "status:", resp.status, "data:", data);
-      return { ok: resp.ok, status: resp.status, data };
-    }
+      console.log("CALL →", url, "status:", resp.status, "data:", data);
+      return { ok: resp.ok, status: resp.status, data };
+    }
 
-    // ============================================
-    //  FLUJOS ESPECÍFICOS
-    // ============================================
-    async function llamarFlujoCrearBobinaOtros(payload) {
-      return llamarPOST(FLOW_URL_CREAR_OTROS, payload);
-    }
+    // ============================================
+    //  FLUJOS ESPECÍFICOS
+    // ============================================
+    async function llamarFlujoCrearBobinaOtros(payload) {
+      return llamarPOST(FLOW_URL_CREAR_OTROS, payload);
+    }
 
-    async function llamarFlujoCrearBobinaVert(payload) {
-      return llamarPOST(FLOW_URL_CREAR_VERT, payload);
-    }
+    async function llamarFlujoCrearBobinaVert(payload) {
+      return llamarPOST(FLOW_URL_CREAR_VERT, payload);
+    }
 
-    async function llamarFlujoVerticalizadaInfo(sku) {
-      // El trigger espera "codigo"
-      const payload = { codigo: sku };
-      return llamarPOST(FLOW_URL_VERTICALIZADA_INFO, payload);
-    }
+    async function llamarFlujoVerticalizadaInfo(sku) {
+      // El trigger espera "codigo"
+      const payload = { codigo: sku };
+      return llamarPOST(FLOW_URL_VERTICALIZADA_INFO, payload);
+    }
 
-    // ============================================
-    //  OTROS PROVEEDORES
-    // ============================================
-    const formOtros = document.getElementById("form-otros");
-    const statusOtros = document.getElementById("status-otros");
-    const btnOtrosCrear = document.getElementById("btn-otros-crear");
-    const btnOtrosLimpiar = document.getElementById("btn-otros-limpiar");
+    // ============================================
+    //  OTROS PROVEEDORES
+    // ============================================
+    const formOtros = document.getElementById("form-otros");
+    const statusOtros = document.getElementById("status-otros");
+    const btnOtrosCrear = document.getElementById("btn-otros-crear");
+    const btnOtrosLimpiar = document.getElementById("btn-otros-limpiar");
 
-    btnOtrosCrear.addEventListener("click", async () => {
-      setStatus(statusOtros, null, "");
-      if (!formOtros.reportValidity()) {
-        setStatus(statusOtros, "err", "Revisá los campos obligatorios antes de crear la bobina.");
-        return;
-      }
+    btnOtrosCrear.addEventListener("click", async () => {
+      setStatus(statusOtros, null, "");
+      if (!formOtros.reportValidity()) {
+        setStatus(statusOtros, "err", "Revisá los campos obligatorios antes de crear la bobina.");
+        return;
+      }
 
-      const ifr = document.getElementById("otros-ifr").value.trim().toUpperCase();
-      const cantidad = document.getElementById("otros-cantidad").value.trim();
-      const proveedor = document.getElementById("otros-proveedor").value.trim().toUpperCase();
-      const fecha = document.getElementById("otros-fecha").value;
-      const numeroBobinasRaw = document.getElementById("otros-num-bobinas").value.trim();
-      const numeroBobinasNum = Number(numeroBobinasRaw);
-      const ubicacion = document.getElementById("otros-ubicacion").value.trim().toUpperCase();
+      const ifr = document.getElementById("otros-ifr").value.trim().toUpperCase();
+      const cantidad = document.getElementById("otros-cantidad").value.trim();
+      const proveedor = document.getElementById("otros-proveedor").value.trim().toUpperCase();
+      const fecha = document.getElementById("otros-fecha").value;
+      const numeroBobinasRaw = document.getElementById("otros-num-bobinas").value.trim();
+      const numeroBobinasNum = Number(numeroBobinasRaw);
+      const ubicacion = document.getElementById("otros-ubicacion").value.trim().toUpperCase();
 
-      if (!numeroBobinasRaw || isNaN(numeroBobinasNum) || numeroBobinasNum <= 0) {
-        setStatus(statusOtros, "err", "El número de bobinas debe ser un valor numérico mayor que 0.");
-        return;
-      }
+      if (!numeroBobinasRaw || isNaN(numeroBobinasNum) || numeroBobinasNum <= 0) {
+        setStatus(statusOtros, "err", "El número de bobinas debe ser un valor numérico mayor que 0.");
+        return;
+      }
 
-      const payload = {
-        origen: "OTROS_PROVEEDORES",
-        ifr,
-        cantidad,
-        proveedor,
-        fecha,
-        numeroBobinas: numeroBobinasNum,
-        ubicacion: ubicacion || null,
-      };
+      const payload = {
+        origen: "OTROS_PROVEEDORES",
+        ifr,
+        cantidad,
+        proveedor,
+        fecha,
+        numeroBobinas: numeroBobinasNum,
+        ubicacion: ubicacion || null,
+      };
 
-      try {
-        disableButton(btnOtrosCrear, true);
-        setStatus(statusOtros, "ok", "Creando bobina en la BDD…");
+      try {
+        disableButton(btnOtrosCrear, true);
+        setStatus(statusOtros, "ok", "Creando bobina en la BDD…");
 
-        const { ok, data } = await llamarFlujoCrearBobinaOtros(payload);
+        const { ok, data } = await llamarFlujoCrearBobinaOtros(payload);
 
-        if (ok && data && (data.ok === true || data.success === true)) {
-          const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
-          setStatus(
-            statusOtros,
-            "ok",
-            `Bobina creada exitosamente. ID: <code>${id}</code>`
-          );
-        } else {
-          console.error("Respuesta flujo crear (otros):", data);
-          setStatus(
-            statusOtros,
-            "err",
-            "No se pudo crear la bobina. Revisá el flujo o los datos enviados."
-          );
+        if (ok && data && (data.ok === true || data.success === true)) {
+          const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
+          setStatus(
+            statusOtros,
+            "ok",
+            `Bobina creada exitosamente. ID: <code>${id}</code>`
+          );
+        } else {
+          console.error("Respuesta flujo crear (otros):", data);
+          setStatus(
+            statusOtros,
+            "err",
+            "No se pudo crear la bobina. Revisá el flujo o los datos enviados."
+          );
+        }
+      } catch (e) {
+        console.error(e);
+        setStatus(
+          statusOtros,
+          "err",
+          "Error llamando al flujo de creación. Ver consola del navegador para más detalles."
+        );
+      } finally {
+        disableButton(btnOtrosCrear, false);
+      }
+    });
+
+    btnOtrosLimpiar.addEventListener("click", () => {
+      setStatus(statusOtros, null, "");
+      setTodayDate("otros-fecha");
+    });
+
+    // ============================================
+    //  VERTICALIZADA: CARGA INFO DESDE SKU
+    // ============================================
+    const formVert = document.getElementById("form-vert");
+    const statusVert = document.getElementById("status-vert");
+    const btnVertCargarInfo = document.getElementById("btn-vert-cargar-info");
+    const btnVertCrear = document.getElementById("btn-vert-crear");
+    const btnVertLimpiar = document.getElementById("btn-vert-limpiar");
+
+    const inputSku = document.getElementById("vert-sku");
+    const inputVertIfr = document.getElementById("vert-ifr");
+    const inputVertCantidad = document.getElementById("vert-cantidad");
+    const inputVertFecha = document.getElementById("vert-fecha");
+    const inputVertProveedor = document.getElementById("vert-proveedor");
+    const inputVertUbicacion = document.getElementById("vert-ubicacion");
+
+    btnVertCargarInfo.addEventListener("click", async () => {
+      setStatus(statusVert, null, "");
+
+      const sku = inputSku.value.trim();
+      if (!sku) {
+        setStatus(
+          statusVert,
+          "err",
+          "Ingresá primero el SKU de la bobina para poder consultar la información."
+        );
+        return;
+      }
+
+      try {
+        disableButton(btnVertCargarInfo, true);
+        setStatus(
+          statusVert,
+          "ok",
+          "Consultando información de la bobina en la base del proveedor…"
+        );
+
+        const { ok, data } = await llamarFlujoVerticalizadaInfo(sku);
+
+        console.log("Respuesta flujo verticalizada (raw):", data);
+
+        // 🚨 MODIFICACIÓN CLAVE: Obtener el payload correcto
+        // Aseguramos que el payload es el objeto que contiene 'codigo', que puede estar directamente en 'data' o en 'data.body'
+        // Usamos 'data.body' si existe, si no, usamos 'data'
+        const payload = data && data.body ? data.body : data;
+        
+        // Convertimos el payload de texto (si es raw) a JSON si es necesario y posible
+        let finalPayload = payload;
+        if(typeof finalPayload === 'string') {
+            try {
+                finalPayload = JSON.parse(finalPayload);
+            } catch (e) {
+                console.warn("Payload is raw string and could not be parsed as JSON. Using original payload.");
+                // Si el JSON.parse falla, volvemos al string original
+                finalPayload = payload;
+            }
         }
-      } catch (e) {
-        console.error(e);
-        setStatus(
-          statusOtros,
-          "err",
-          "Error llamando al flujo de creación. Ver consola del navegador para más detalles."
-        );
-      } finally {
-        disableButton(btnOtrosCrear, false);
-      }
-    });
+        
+        if (!ok) {
+          setStatus(
+            statusVert,
+            "err",
+            "No se pudo cargar la información de la bobina (HTTP no OK). Revisá el flujo."
+          );
+          return;
+        }
+        
+        // Validamos que existan las propiedades clave 'codigo' o 'cantidadSugerida'
+        const hasValidData = finalPayload && (finalPayload.codigo || finalPayload.cantidadSugerida);
 
-    btnOtrosLimpiar.addEventListener("click", () => {
-      setStatus(statusOtros, null, "");
-      setTodayDate("otros-fecha");
-    });
+        if (!hasValidData) {
+          setStatus(
+            statusVert,
+            "err",
+            "El flujo no devolvió datos válidos para este SKU. Revisá la respuesta en Power Automate."
+          );
+          return;
+        }
 
-    // ============================================
-    //  VERTICALIZADA: CARGA INFO DESDE SKU
-    // ============================================
-    const formVert = document.getElementById("form-vert");
-    const statusVert = document.getElementById("status-vert");
-    const btnVertCargarInfo = document.getElementById("btn-vert-cargar-info");
-    const btnVertCrear = document.getElementById("btn-vert-crear");
-    const btnVertLimpiar = document.getElementById("btn-vert-limpiar");
+        // Mapeo de campos. Usamos 'finalPayload'
+        let ifr = (finalPayload.codigo ?? finalPayload.ifr ?? "").toString().toUpperCase();
+        let cantidad = (finalPayload.cantidadSugerida ?? finalPayload.cantidad ?? "").toString();
 
-    const inputSku = document.getElementById("vert-sku");
-    const inputVertIfr = document.getElementById("vert-ifr");
-    const inputVertCantidad = document.getElementById("vert-cantidad");
-    const inputVertFecha = document.getElementById("vert-fecha");
-    const inputVertProveedor = document.getElementById("vert-proveedor");
-    const inputVertUbicacion = document.getElementById("vert-ubicacion");
+        inputVertIfr.value = ifr;
+        inputVertCantidad.value = cantidad;
 
-    btnVertCargarInfo.addEventListener("click", async () => {
-      setStatus(statusVert, null, "");
+        // Fecha siempre vacía
+        inputVertFecha.value = "";
 
-      const sku = inputSku.value.trim();
-      if (!sku) {
-        setStatus(
-          statusVert,
-          "err",
-          "Ingresá primero el SKU de la bobina para poder consultar la información."
-        );
-        return;
-      }
+        // Proveedor desde flujo o por defecto
+        inputVertProveedor.value = (finalPayload.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
 
-      try {
-        disableButton(btnVertCargarInfo, true);
-        setStatus(
-          statusVert,
-          "ok",
-          "Consultando información de la bobina en la base del proveedor…"
-        );
+        setStatus(
+          statusVert,
+          "ok",
+          "Información de la bobina cargada correctamente. Revisá los datos y luego creá la bobina."
+        );
+      } catch (e) {
+        console.error(e);
+        setStatus(
+          statusVert,
+          "err",
+          "Error llamando al flujo de información de bobina. Revisá la consola del navegador."
+        );
+      } finally {
+        disableButton(btnVertCargarInfo, false);
+      }
+    });
 
-        const { ok, data } = await llamarFlujoVerticalizadaInfo(sku);
+    // ============================================
+    //  VERTICALIZADA: CREAR BOBINA
+    // ============================================
+    btnVertCrear.addEventListener("click", async () => {
+      setStatus(statusVert, null, "");
 
-        console.log("Respuesta flujo verticalizada (raw):", data);
+      const sku = inputSku.value.trim();
+      if (!sku) {
+        setStatus(statusVert, "err", "Ingresá un SKU antes de crear la bobina.");
+        return;
+      }
+      if (!inputVertIfr.value.trim() || !inputVertCantidad.value.trim()) {
+        setStatus(
+          statusVert,
+          "err",
+          "Primero cargá la información de la bobina (botón “Cargar información de bobina”)."
+        );
+        return;
+      }
 
-        // Si el flujo devuelve { body: {...} }, uso body. Si no, uso data directo.
-        const payload = data && (data.body || data);
+      const payload = {
+        origen: "VERTICALIZADA",
+        sku: sku.toUpperCase(),
+        ifr: inputVertIfr.value.trim().toUpperCase(),
+        cantidad: inputVertCantidad.value.trim(),
+        fecha: null, // ignoramos fecha
+        proveedor: "VERTICALIZADA",
+        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || null,
+      };
 
-        if (!ok) {
-          setStatus(
-            statusVert,
-            "err",
-            "No se pudo cargar la información de la bobina (HTTP no OK). Revisá el flujo."
-          );
-          return;
-        }
+      try {
+        disableButton(btnVertCrear, true);
+        setStatus(statusVert, "ok", "Creando bobina verticalizada en la BDD…");
 
-        // Validamos que haya al menos código / ifr
-        if (!payload || (!payload.codigo && !payload.ifr)) {
-          setStatus(
-            statusVert,
-            "err",
-            "El flujo no devolvió datos válidos para este SKU. Revisá la respuesta en Power Automate."
-          );
-          return;
-        }
+        const { ok, data } = await llamarFlujoCrearBobinaVert(payload);
 
-        // Mapeo según tu flujo:
-        // { "ok": true, "codigo": "...", "cantidadSugerida": "...", "proveedor": "Verticalizada" }
-        let ifr = (payload.codigo ?? payload.ifr ?? "").toString().toUpperCase();
-        let cantidad = (payload.cantidadSugerida ?? payload.cantidad ?? "").toString();
+        if (ok && data && (data.ok === true || data.success === true)) {
+          const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
+          setStatus(
+            statusVert,
+            "ok",
+            `Bobina creada exitosamente. ID: <code>${id}</code>`
+          );
+        } else {
+          console.error("Respuesta flujo crear (verticalizada):", data);
+          setStatus(
+            statusVert,
+            "err",
+            "No se pudo crear la bobina verticalizada. Revisá el flujo o los datos enviados."
+          );
+        }
+      } catch (e) {
+        console.error(e);
+        setStatus(
+          statusVert,
+          "err",
+          "Error llamando al flujo de creación. Ver consola del navegador para más detalles."
+        );
+      } finally {
+        disableButton(btnVertCrear, false);
+      }
+    });
 
-        inputVertIfr.value = ifr;
-        inputVertCantidad.value = cantidad;
-
-        // Fecha siempre vacía
-        inputVertFecha.value = "";
-
-        // Proveedor desde flujo o por defecto
-        inputVertProveedor.value = (payload.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
-
-        setStatus(
-          statusVert,
-          "ok",
-          "Información de la bobina cargada correctamente. Revisá los datos y luego creá la bobina."
-        );
-      } catch (e) {
-        console.error(e);
-        setStatus(
-          statusVert,
-          "err",
-          "Error llamando al flujo de información de bobina. Revisá la consola del navegador."
-        );
-      } finally {
-        disableButton(btnVertCargarInfo, false);
-      }
-    });
-
-    // ============================================
-    //  VERTICALIZADA: CREAR BOBINA
-    // ============================================
-    btnVertCrear.addEventListener("click", async () => {
-      setStatus(statusVert, null, "");
-
-      const sku = inputSku.value.trim();
-      if (!sku) {
-        setStatus(statusVert, "err", "Ingresá un SKU antes de crear la bobina.");
-        return;
-      }
-      if (!inputVertIfr.value.trim() || !inputVertCantidad.value.trim()) {
-        setStatus(
-          statusVert,
-          "err",
-          "Primero cargá la información de la bobina (botón “Cargar información de bobina”)."
-        );
-        return;
-      }
-
-      const payload = {
-        origen: "VERTICALIZADA",
-        sku: sku.toUpperCase(),
-        ifr: inputVertIfr.value.trim().toUpperCase(),
-        cantidad: inputVertCantidad.value.trim(),
-        fecha: null, // ignoramos fecha
-        proveedor: "VERTICALIZADA",
-        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || null,
-      };
-
-      try {
-        disableButton(btnVertCrear, true);
-        setStatus(statusVert, "ok", "Creando bobina verticalizada en la BDD…");
-
-        const { ok, data } = await llamarFlujoCrearBobinaVert(payload);
-
-        if (ok && data && (data.ok === true || data.success === true)) {
-          const id = data.bobinaid || data.id || data.codigo || "(sin ID devuelto)";
-          setStatus(
-            statusVert,
-            "ok",
-            `Bobina creada exitosamente. ID: <code>${id}</code>`
-          );
-        } else {
-          console.error("Respuesta flujo crear (verticalizada):", data);
-          setStatus(
-            statusVert,
-            "err",
-            "No se pudo crear la bobina verticalizada. Revisá el flujo o los datos enviados."
-          );
-        }
-      } catch (e) {
-        console.error(e);
-        setStatus(
-          statusVert,
-          "err",
-          "Error llamando al flujo de creación. Ver consola del navegador para más detalles."
-        );
-      } finally {
-        disableButton(btnVertCrear, false);
-      }
-    });
-
-    btnVertLimpiar.addEventListener("click", () => {
-      setStatus(statusVert, null, "");
-      inputVertIfr.value = "";
-      inputVertCantidad.value = "";
-      inputVertFecha.value = "";
-      inputVertProveedor.value = "VERTICALIZADA";
-      inputVertUbicacion.value = "";
-      inputSku.value = "";
-    });
-  </script>
-</body>
-</html>
-
-
+    btnVertLimpiar.addEventListener("click", () => {
+      setStatus(statusVert, null, "");
+      inputVertIfr.value = "";
+      inputVertCantidad.value = "";
+      inputVertFecha.value = "";
+      inputVertProveedor.value = "VERTICALIZADA";
+      inputVertUbicacion.value = "";
+      inputSku.value = "";
+    });
+  </script>
