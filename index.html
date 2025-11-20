@@ -835,96 +835,108 @@
     // ============================================
     //  VERTICALIZADA: CARGA DE INFO DESDE SKU
     // ============================================
-    const formVert = document.getElementById("form-vert");
-    const statusVert = document.getElementById("status-vert");
-    const btnVertCargarInfo = document.getElementById("btn-vert-cargar-info");
-    const btnVertCrear = document.getElementById("btn-vert-crear");
-    const btnVertLimpiar = document.getElementById("btn-vert-limpiar");
+const formVert = document.getElementById("form-vert");
+const statusVert = document.getElementById("status-vert");
+const btnVertCargarInfo = document.getElementById("btn-vert-cargar-info");
+const btnVertCrear = document.getElementById("btn-vert-crear");
+const btnVertLimpiar = document.getElementById("btn-vert-limpiar");
 
-    const inputSku = document.getElementById("vert-sku");
-    const inputVertIfr = document.getElementById("vert-ifr");
-    const inputVertCantidad = document.getElementById("vert-cantidad");
-    const inputVertFecha = document.getElementById("vert-fecha");
-    const inputVertProveedor = document.getElementById("vert-proveedor");
-    const inputVertUbicacion = document.getElementById("vert-ubicacion");
+const inputSku = document.getElementById("vert-sku");
+const inputVertIfr = document.getElementById("vert-ifr");
+const inputVertCantidad = document.getElementById("vert-cantidad");
+const inputVertFecha = document.getElementById("vert-fecha");
+const inputVertProveedor = document.getElementById("vert-proveedor");
+const inputVertUbicacion = document.getElementById("vert-ubicacion");
 
-    btnVertCargarInfo.addEventListener("click", async () => {
-      setStatus(statusVert, null, "");
+btnVertCargarInfo.addEventListener("click", async () => {
+  setStatus(statusVert, null, "");
 
-      const sku = inputSku.value.trim();
-      if (!sku) {
-        setStatus(statusVert, "err", "Ingresá primero el SKU de la bobina para poder consultar la información.");
-        return;
+  const sku = inputSku.value.trim();
+  if (!sku) {
+    setStatus(
+      statusVert,
+      "err",
+      "Ingresá primero el SKU de la bobina para poder consultar la información."
+    );
+    return;
+  }
+
+  try {
+    disableButton(btnVertCargarInfo, true);
+    setStatus(
+      statusVert,
+      "ok",
+      "Consultando información de la bobina en la base del proveedor…"
+    );
+
+    const { ok, data } = await llamarFlujoVerticalizadaInfo(sku);
+
+    console.log("Respuesta flujo verticalizada:", data);
+
+    // Si el HTTP no fue 2xx => error
+    if (!ok) {
+      setStatus(
+        statusVert,
+        "err",
+        "No se pudo cargar la información de la bobina (HTTP no OK). Revisá el flujo."
+      );
+      return;
+    }
+
+    // Validamos que venga al menos 'codigo' (o 'ifr')
+    if (!data || (typeof data.codigo === "undefined" && typeof data.ifr === "undefined")) {
+      setStatus(
+        statusVert,
+        "err",
+        "El flujo no devolvió datos válidos para este SKU. Revisá la respuesta en Power Automate."
+      );
+      return;
+    }
+
+    // Mapeo de campos:
+    //  - IFR   <= codigo (o ifr)
+    //  - Cant. <= cantidadSugerida (o cantidad)
+    let ifr = (data.codigo ?? data.ifr ?? "").toString().toUpperCase();
+    let cantidad = (data.cantidadSugerida ?? data.cantidad ?? "").toString();
+    let fechaIso = data.fecha ?? data.FECHA ?? "";
+
+    inputVertIfr.value = ifr;
+    inputVertCantidad.value = cantidad;
+
+    // Si en algún momento decidís devolver fecha desde el flujo, esto la formatea a yyyy-mm-dd
+    if (fechaIso) {
+      const d = new Date(fechaIso);
+      if (!isNaN(d.getTime())) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        inputVertFecha.value = `${y}-${m}-${day}`;
+      } else {
+        inputVertFecha.value = "";
       }
+    } else {
+      inputVertFecha.value = "";
+    }
 
-      try {
-        disableButton(btnVertCargarInfo, true);
-        setStatus(statusVert, "ok", "Consultando información de la bobina en la base del proveedor…");
+    inputVertProveedor.value = (data.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
 
-        const { ok, status, data } = await llamarFlujoVerticalizadaInfo(sku);
+    setStatus(
+      statusVert,
+      "ok",
+      "Información de la bobina cargada correctamente. Revisá los datos y luego creá la bobina."
+    );
+  } catch (e) {
+    console.error(e);
+    setStatus(
+      statusVert,
+      "err",
+      "Error llamando al flujo de información de bobina. Revisá la consola del navegador."
+    );
+  } finally {
+    disableButton(btnVertCargarInfo, false);
+  }
+});
 
-        if (!ok) {
-          console.error("Respuesta flujo verticalizada (HTTP no ok):", status, data);
-          setStatus(
-            statusVert,
-            "err",
-            `No se pudo cargar la información de la bobina (HTTP ${status}). Verificá el flujo y el SKU.`
-          );
-          return;
-        }
-
-        // Consideramos válida la respuesta si viene algún identificador (codigo/ifr)
-        const okFlag = data && (data.codigo || data.ifr || data.IFR);
-        if (!okFlag) {
-          console.error("Respuesta flujo verticalizada (sin datos útiles):", data);
-          setStatus(
-            statusVert,
-            "err",
-            "El flujo no devolvió datos válidos para este SKU. Revisá la respuesta en Power Automate."
-          );
-          return;
-        }
-
-        let ifr = data.ifr || data.codigo || data.IFR || "";
-        let cantidad = data.cantidad || data.cantidadSugerida || data.CANTIDAD || "";
-        const fechaIso = data.fecha || data.FECHA || "";
-
-        ifr = String(ifr).toUpperCase();
-        inputVertIfr.value = ifr;
-        inputVertCantidad.value = cantidad;
-
-        if (fechaIso) {
-          const d = new Date(fechaIso);
-          if (!isNaN(d.getTime())) {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, "0");
-            const day = String(d.getDate()).padStart(2, "0");
-            inputVertFecha.value = `${y}-${m}-${day}`;
-          } else {
-            inputVertFecha.value = "";
-          }
-        } else {
-          inputVertFecha.value = "";
-        }
-
-        inputVertProveedor.value = "VERTICALIZADA";
-
-        setStatus(
-          statusVert,
-          "ok",
-          "Información de la bobina cargada correctamente. Revisá los datos y luego creá la bobina."
-        );
-      } catch (e) {
-        console.error(e);
-        setStatus(
-          statusVert,
-          "err",
-          "Error llamando al flujo de información de bobina. Revisá la consola del navegador."
-        );
-      } finally {
-        disableButton(btnVertCargarInfo, false);
-      }
-    });
 
     // ============================================
     //  VERTICALIZADA: CREAR BOBINA
@@ -1001,3 +1013,4 @@
   </script>
 </body>
 </html>
+
