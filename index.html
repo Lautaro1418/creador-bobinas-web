@@ -941,103 +941,70 @@ inputVertDescripcion.value = descripcionFlujo;
       }
     });
 
-    // ============================================
-    //  VERTICALIZADA: CREAR BOBINA (CORREGIDO)
-    // ============================================
-    btnVertCrear.addEventListener("click", async () => {
-      setStatus(statusVert, null, "");
+// ============================================
+//  VERTICALIZADA: CREAR BOBINA (ACTUALIZADO)
+// ============================================
+btnVertCrear.addEventListener("click", async () => {
+    setStatus(statusVert, null, "");
 
-      const sku = inputSku.value.trim();
-      if (!sku) {
-        setStatus(statusVert, "err", "Ingresá un SKU antes de crear la bobina.");
-        return;
-      }
-      
-      // Validamos que la información necesaria esté cargada
-      if (!inputVertIfr.value.trim() || !inputVertCantidad.value.trim()) {
-        setStatus(
-          statusVert,
-          "err",
-          "Primero cargá la información de la bobina (botón “Cargar información de bobina”)."
-        );
-        return;
-      }
+    const sku = inputSku.value.trim();
+    if (!sku) {
+        setStatus(statusVert, "err", "Ingresá un SKU antes de crear la bobina.");
+        return;
+    }
+    
+    if (!inputVertIfr.value.trim() || !inputVertCantidad.value.trim()) {
+        setStatus(statusVert, "err", "Primero cargá la información de la bobina.");
+        return;
+    }
 
-      // --- 1. Preparar y validar datos para el esquema de Power Automate ---
-      const cantidadStr = inputVertCantidad.value.trim();
-      const cantidadNum = parseInt(cantidadStr, 10);
-      
-      if (isNaN(cantidadNum)) {
-        setStatus(statusVert, "err", "La cantidad debe ser un número entero válido.");
-        return;
-      }
+    const cantidadNum = parseInt(inputVertCantidad.value.trim(), 10);
+    if (isNaN(cantidadNum)) {
+        setStatus(statusVert, "err", "La cantidad no es válida.");
+        return;
+    }
 
-      // Obtener la fecha actual en formato AAAA-MM-DD para 'fechaIngreso' (requerido como string)
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
-      const fechaActual = `${y}-${m}-${d}`;
+    // Construcción del Payload según tu nuevo JSON de Power Automate
+    const payload = {
+        sku: sku.toUpperCase(),
+        codigo: inputVertIfr.value.trim().toUpperCase(),
+        cantidadPorBobina: cantidadNum, 
+        proveedor: "VERTICALIZADA",
+        fecha: inputVertFecha.value, // La fecha que trajo el primer flujo (Excel)
+        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || "", 
+        descripcion: inputVertDescripcion.value.trim().toUpperCase() || "",
+        numeroBobinas: 1
+    };
+    
+    console.log("Enviando a Creación:", payload);
 
-      // --- 2. Construcción del Payload Sincronizado ---
-      const payload = {
-        sku: sku.toUpperCase(),
-        codigo: inputVertIfr.value.trim().toUpperCase(),
-        cantidadPorBobina: cantidadNum, 
-        proveedor: "VERTICALIZADA",
-        fechaIngreso: fechaActual, 
-        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || "", 
-        numeroBobinas: 1 
-      };
-      
-      console.log("PAYLOAD CREADOR (Sincronizado):", payload);
+    try {
+        disableButton(btnVertCrear, true);
+        setStatus(statusVert, "ok", "Registrando en SharePoint…");
 
-      try {
-        disableButton(btnVertCrear, true);
-        setStatus(statusVert, "ok", "Creando bobina verticalizada en la BDD…");
+        const { ok, data, status } = await llamarFlujoCrearBobinaVert(payload);
+        
+        if (ok && status === 200) {
+            const idSP = data.idSharepoint || "N/A";
+            const idSKU = data.idNuestro || sku;
 
-        const { ok, data, status } = await llamarFlujoCrearBobinaVert(payload);
-        
-        // Con llamarPOST corregida, 'ok' será TRUE para 200 y 202
-        if (ok) {
-          let msg = "Bobina enviada para creación. ";
-          let id = "(Pendiente de asignación)";
-          
-          if (status === 200 && data) {
-            // Si obtuvimos 200, intentamos leer el ID (ids[0] es el más probable)
-            id = data.bobinaid || data.id || data.codigo || data.ids?.[0] || "(sin ID devuelto)";
-            msg = "Bobina creada exitosamente. ";
-          } else if (status === 202) {
-            // Mensaje para la respuesta 202 asíncrona
-            msg += "El proceso está en curso (Status 202).";
-          }
-
-          setStatus(
-            statusVert,
-            "ok",
-            `${msg} ID: <code>${id}</code>`
-          );
-
-        } else {
-          // Esto solo se ejecuta para errores 4xx o 5xx, no para 202.
-          console.error("Respuesta flujo crear (verticalizada):", data);
-          setStatus(
-            statusVert,
-            "err",
-            "No se pudo crear la bobina. Revisá el flujo o los datos enviados. (Status: " + status + ")"
-          );
-        }
-      } catch (e) {
-        console.error(e);
-        setStatus(
-          statusVert,
-          "err",
-          "Error llamando al flujo de creación. Ver consola del navegador para más detalles."
-        );
-      } finally {
-        disableButton(btnVertCrear, false);
-      }
-    });
+            setStatus(
+                statusVert,
+                "ok",
+                `✅ Bobina creada. <br> SKU: <code>${idSKU}</code> | ID SharePoint: <code>${idSP}</code>`
+            );
+            // Opcional: limpiar campos tras éxito
+            // btnVertLimpiar.click(); 
+        } else {
+            setStatus(statusVert, "err", "Error al crear: " + (data.message || status));
+        }
+    } catch (e) {
+        console.error(e);
+        setStatus(statusVert, "err", "Error de conexión con el servidor.");
+    } finally {
+        disableButton(btnVertCrear, false);
+    }
+});
 
     btnVertLimpiar.addEventListener("click", () => {
       setStatus(statusVert, null, "");
@@ -1050,6 +1017,7 @@ inputVertDescripcion.value = descripcionFlujo;
       inputVertDescripcion.value = "";
     });
   </script>
+
 
 
 
