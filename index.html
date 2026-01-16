@@ -545,6 +545,13 @@
           </div>
 
           <div class="field">
+            <label for="vert-descripcion">
+              Descripción <span class="badge-auto">Completa automático</span>
+            </label>
+            <input id="vert-descripcion" name="descripcion" readonly />
+          </div>
+          
+          <div class="field">
             <label for="vert-cantidad">
               Cantidad <span class="badge-auto">Completa automático</span>
             </label>
@@ -855,6 +862,7 @@
     const inputVertFecha = document.getElementById("vert-fecha");
     const inputVertProveedor = document.getElementById("vert-proveedor");
     const inputVertUbicacion = document.getElementById("vert-ubicacion");
+    const inputVertDescripcion = document.getElementById("vert-descripcion");
 
     btnVertCargarInfo.addEventListener("click", async () => {
       setStatus(statusVert, null, "");
@@ -908,11 +916,13 @@ if (!hasValidData) {
 let ifr = (finalPayload.codigo ?? "").toString().toUpperCase();
 let cantidad = (finalPayload.cantidadSugerida ?? "").toString();
 let fechaFlujo = (finalPayload.fecha ?? "").toString();
+let descripcionFlujo = (finalPayload.descripcion ?? "").toString().toUpperCase();
 
 inputVertIfr.value = ifr;
 inputVertCantidad.value = cantidad;
 inputVertFecha.value = fechaFlujo; 
 inputVertProveedor.value = (finalPayload.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
+inputVertDescripcion.value = descripcionFlujo;
 
         setStatus(
           statusVert,
@@ -1037,8 +1047,10 @@ inputVertProveedor.value = (finalPayload.proveedor ?? "VERTICALIZADA").toString(
       inputVertProveedor.value = "VERTICALIZADA";
       inputVertUbicacion.value = "";
       inputSku.value = "";
+      inputVertDescripcion.value = "";
     });
   </script>
+
 
 
 
