@@ -892,27 +892,27 @@
         
         const finalPayload = data; 
         
-        // Validamos que existan las propiedades clave 'ok: true' y los campos de datos.
-        const hasValidData = finalPayload && finalPayload.ok === true && (finalPayload.codigo || finalPayload.cantidadSugerida);
+        // Validamos que el payload exista y que la respuesta sea ok
+const hasValidData = finalPayload && finalPayload.ok === true;
 
-        if (!hasValidData) {
-          setStatus(
-            statusVert,
-            "err",
-            "El flujo no devolvió los datos esperados (cuerpo JSON inválido). Revisá la respuesta."
-          );
-          return;
-        }
+if (!hasValidData) {
+    setStatus(
+        statusVert,
+        "err",
+        "El flujo no devolvió una respuesta válida. Revisá la configuración en Power Automate."
+    );
+    return;
+}
 
-        // Mapeo de campos.
-        let ifr = (finalPayload.codigo ?? finalPayload.ifr ?? "").toString().toUpperCase();
-        let cantidad = (finalPayload.cantidadSugerida ?? finalPayload.cantidad ?? "").toString();
-        let fechaFlujo = (finalPayload.fecha ?? "").toString();
-        
-        inputVertIfr.value = ifr;
-        inputVertCantidad.value = cantidad;
-        inputVertFecha.value = fechaFlujo;
-        inputVertProveedor.value = (finalPayload.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
+// Mapeo de campos con los nombres exactos de tu JSON de Power Automate
+let ifr = (finalPayload.codigo ?? "").toString().toUpperCase();
+let cantidad = (finalPayload.cantidadSugerida ?? "").toString();
+let fechaFlujo = (finalPayload.fecha ?? "").toString();
+
+inputVertIfr.value = ifr;
+inputVertCantidad.value = cantidad;
+inputVertFecha.value = fechaFlujo; 
+inputVertProveedor.value = (finalPayload.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
 
         setStatus(
           statusVert,
@@ -1039,6 +1039,7 @@
       inputSku.value = "";
     });
   </script>
+
 
 
 
