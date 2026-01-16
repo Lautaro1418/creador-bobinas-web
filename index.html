@@ -383,6 +383,26 @@
       padding: 1px 4px;
       border-radius: 4px;
     }
+
+  .separator-strong {
+        border: none;
+        border-top: 2px solid #e5e7eb;
+        margin: 20px 0;
+        position: relative;
+    }
+    .separator-strong::after {
+        content: "DATOS DE LA BOBINA";
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        background: #f9fafb; 
+        padding: 0 10px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+    }
+    
   </style>
 </head>
 <body>
@@ -533,7 +553,29 @@
         </button>
       </div>
 
-      <hr style="border:none; border-top:1px dashed #e5e7eb; margin:12px 0 10px;">
+      <div class="separator-strong"></div>
+
+<form id="form-vert">
+    <div class="btn-row-main">
+        <button type="button" id="btn-vert-crear" class="btn btn-primary btn-big">
+            ✅ Crear bobina
+        </button>
+        <button type="reset" id="btn-vert-limpiar" class="btn btn-secondary btn-small-right">
+            🧹 Limpiar
+        </button>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
+        <div id="status-vert" class="status">
+            <span class="icon">●</span>
+            <span class="msg"></span>
+        </div>
+        
+        <button type="button" id="btn-vert-imprimir" class="btn btn-outline" style="border-style: dashed;">
+            🖨️ Imprimir Etiqueta
+        </button>
+    </div>
+</form>
 
       <form id="form-vert">
         <div class="field-grid">
@@ -612,6 +654,9 @@
     const FLOW_URL_VERTICALIZADA_INFO =
       "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fe0015c3370a4e4485b1174a1235a4df/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=T4OsXa8va0paJ_DPD4DmbsdDNdVk-2LMh618K1ayt3Y";
 
+    const FLOW_URL_IMPRIMIR_ZPL = 
+      "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c243919e09ba455ba6e6d9264d0fe59a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-FI4sg6jlPGtJou_kFUSMISkhG9BQRkRvzEXbOd9dm0";
+    
     // ============================================
     //  NAVEGACIÓN
     // ============================================
@@ -1026,7 +1071,52 @@ const payload = {
       inputSku.value = "";
       inputVertDescripcion.value = "";
     });
+
+// ============================================
+//  VERTICALIZADA: IMPRIMIR ETIQUETA ZPL
+// ============================================
+const btnVertImprimir = document.getElementById("btn-vert-imprimir");
+
+btnVertImprimir.addEventListener("click", async () => {
+    // Tomamos los valores actuales de la pantalla
+    const cod = document.getElementById("vert-ifr").value.trim();
+    const desc = document.getElementById("vert-descripcion").value.trim();
+    const fecha = document.getElementById("vert-fecha").value;
+    const idUnico = document.getElementById("vert-sku").value.trim();
+
+    if (!cod || !idUnico) {
+        alert("Primero debés cargar la información de la bobina para imprimir.");
+        return;
+    }
+
+    const payload = {
+        cod: cod,
+        desc: desc,
+        fecha: fecha,
+        id_unico: idUnico
+    };
+
+    try {
+        disableButton(btnVertImprimir, true);
+        setStatus(statusVert, "ok", "Enviando a imprimir...");
+
+        const { ok, status } = await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, payload);
+
+        if (ok) {
+            setStatus(statusVert, "ok", "✅ Etiqueta enviada a la impresora.");
+        } else {
+            setStatus(statusVert, "err", "Error al imprimir (Status: " + status + ")");
+        }
+    } catch (e) {
+        console.error(e);
+        setStatus(statusVert, "err", "Error de conexión con el flujo de impresión.");
+    } finally {
+        disableButton(btnVertImprimir, false);
+    }
+});
+    
   </script>
+
 
 
 
