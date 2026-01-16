@@ -1064,10 +1064,16 @@ btnVertImprimir.addEventListener("click", async () => {
         return;
     }
 
+    let fechaFormateada = "";
+    if (fechaISO) {
+        const [y, m, d] = fechaISO.split('-');
+        fechaFormateada = `${d}-${m}-${y}`; // Lo armamos como dd-MM-yyyy
+    }
+        
     const payload = {
         cod: cod,
         desc: desc,
-        fecha: fecha,
+        fecha: fechaFormateada,
         id_unico: idUnico
     };
 
@@ -1091,6 +1097,7 @@ btnVertImprimir.addEventListener("click", async () => {
 });
     
   </script>
+
 
 
 
