@@ -1065,7 +1065,7 @@ btnVertImprimir.addEventListener("click", async () => {
     }
 
     let fechaFormateada = "";
-    if (fechaISO) {
+    if (fecha) {
         const [y, m, d] = fechaISO.split('-');
         fechaFormateada = `${d}-${m}-${y}`; // Lo armamos como dd-MM-yyyy
     }
