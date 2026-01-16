@@ -532,19 +532,15 @@
       </div>
       <div class="screen-subtitle">
         Ingresá el <strong>SKU único</strong> de la bobina (teclado o lector externo).
-        Luego presioná <strong>“Cargar información de bobina”</strong> para que el flujo de Power Automate
-        consulte la base del proveedor y complete los datos automáticamente.
+        Luego presioná <strong>“Cargar información de bobina”</strong>.
       </div>
 
-      <!-- SKU -->
       <div class="field">
         <label for="vert-sku">
           SKU único de bobina <span class="req">*</span>
         </label>
         <input id="vert-sku" name="sku" required placeholder="Escaneá con lector o escribí el SKU..." />
-        <small>
-          Podés usar un lector de código de barras USB / BT (como teclado).
-        </small>
+        <small>Podés usar un lector de código de barras USB / BT.</small>
       </div>
 
       <div class="btn-row" style="margin-top:12px;">
@@ -555,71 +551,45 @@
 
       <div class="separator-strong"></div>
 
-<form id="form-vert">
-    <div class="btn-row-main">
-        <button type="button" id="btn-vert-crear" class="btn btn-primary btn-big">
-            ✅ Crear bobina
-        </button>
-        <button type="reset" id="btn-vert-limpiar" class="btn btn-secondary btn-small-right">
-            🧹 Limpiar
-        </button>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
-        <div id="status-vert" class="status">
-            <span class="icon">●</span>
-            <span class="msg"></span>
-        </div>
-        
-        <button type="button" id="btn-vert-imprimir" class="btn btn-outline" style="border-style: dashed;">
-            🖨️ Imprimir Etiqueta
-        </button>
-    </div>
-</form>
-
       <form id="form-vert">
         <div class="field-grid">
           <div class="field">
             <label for="vert-ifr">
-              IFR <span class="badge-auto">Completa automático</span>
+              IFR <span class="badge-auto">Automático</span>
             </label>
             <input id="vert-ifr" name="ifr" readonly />
           </div>
 
           <div class="field">
             <label for="vert-descripcion">
-              Descripción <span class="badge-auto">Completa automático</span>
+              Descripción <span class="badge-auto">Automático</span>
             </label>
             <input id="vert-descripcion" name="descripcion" readonly />
           </div>
           
           <div class="field">
             <label for="vert-cantidad">
-              Cantidad <span class="badge-auto">Completa automático</span>
+              Cantidad <span class="badge-auto">Automático</span>
             </label>
             <input id="vert-cantidad" name="cantidad" readonly />
           </div>
 
           <div class="field">
             <label for="vert-fecha">
-              Fecha <span class="badge-auto">Completa automático</span>
+              Fecha <span class="badge-auto">Automático</span>
             </label>
-            <!-- readonly y SIEMPRE vacía desde JS -->
             <input id="vert-fecha" name="fecha" type="date" readonly />
           </div>
 
           <div class="field">
             <label for="vert-proveedor">
-              Proveedor 
-              <span class="badge-fixed">Siempre “VERTICALIZADA”</span>
+              Proveedor <span class="badge-fixed">VERTICALIZADA</span>
             </label>
             <input id="vert-proveedor" name="proveedor" value="VERTICALIZADA" readonly />
           </div>
 
           <div class="field">
-            <label for="vert-ubicacion">
-              Ubicación
-            </label>
+            <label for="vert-ubicacion">Ubicación</label>
             <input id="vert-ubicacion" name="ubicacion" placeholder="Opcional, editable" />
           </div>
         </div>
@@ -633,13 +603,18 @@
           </button>
         </div>
 
-        <div id="status-vert" class="status">
-          <span class="icon">●</span>
-          <span class="msg"></span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
+            <div id="status-vert" class="status">
+                <span class="icon">●</span>
+                <span class="msg"></span>
+            </div>
+            
+            <button type="button" id="btn-vert-imprimir" class="btn btn-outline" style="border-style: dashed;">
+                🖨️ Imprimir Etiqueta
+            </button>
         </div>
       </form>
     </section>
-  </main>
 
   <script>
     // ============================================
@@ -1116,6 +1091,7 @@ btnVertImprimir.addEventListener("click", async () => {
 });
     
   </script>
+
 
 
 
