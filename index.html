@@ -804,7 +804,7 @@ btnOtrosCrear.addEventListener("click", async () => {
   const proveedor = document.getElementById("otros-proveedor").value.trim().toUpperCase();
   const fechaIngreso = document.getElementById("otros-fecha").value;
   const numBobinasRaw = document.getElementById("otros-num-bobinas").value;
-  const ubicacion = document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "ALMACEN";
+  const ubicacion = document.getElementById("otros-ubicacion").value.trim().toUpperCase();
 
   // IMPORTANTE: El Schema pide Integer. Usamos parseInt para asegurar el tipo de dato.
   const payload = {
@@ -1082,6 +1082,7 @@ btnVertImprimir.addEventListener("click", async () => {
 });
     
   </script>
+
 
 
 
