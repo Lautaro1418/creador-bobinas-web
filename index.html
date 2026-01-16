@@ -964,17 +964,27 @@ btnVertCrear.addEventListener("click", async () => {
         return;
     }
 
-    // Construcción del Payload según tu nuevo JSON de Power Automate
-    const payload = {
-        sku: sku.toUpperCase(),
-        codigo: inputVertIfr.value.trim().toUpperCase(),
-        cantidadPorBobina: cantidadNum, 
-        proveedor: "VERTICALIZADA",
-        fecha: inputVertFecha.value, // La fecha que trajo el primer flujo (Excel)
-        ubicacion: inputVertUbicacion.value.trim().toUpperCase() || "", 
-        descripcion: inputVertDescripcion.value.trim().toUpperCase() || "",
-        numeroBobinas: 1
-    };
+    // ... dentro de btnVertCrear.addEventListener ...
+
+// 1. Validar y formatear la fecha que viene del input (que es tipo date)
+let fechaParaFlujo = inputVertFecha.value; 
+// Si por alguna razón el input date falla, aseguramos formato ISO
+if (fechaParaFlujo.includes('/')) {
+    const [d, m, y] = fechaParaFlujo.split('/');
+    fechaParaFlujo = `${y}-${m}-${d}`;
+}
+
+// 2. Construcción del Payload
+const payload = {
+    sku: sku.toUpperCase(),
+    codigo: inputVertIfr.value.trim().toUpperCase(),
+    cantidadPorBobina: cantidadNum, 
+    proveedor: "VERTICALIZADA",
+    fecha: fechaParaFlujo, // <--- Aquí ya va como YYYY-MM-DD
+    ubicacion: inputVertUbicacion.value.trim().toUpperCase() || "", 
+    descripcion: inputVertDescripcion.value.trim().toUpperCase() || "",
+    numeroBobinas: 1
+};
     
     console.log("Enviando a Creación:", payload);
 
@@ -1017,6 +1027,7 @@ btnVertCrear.addEventListener("click", async () => {
       inputVertDescripcion.value = "";
     });
   </script>
+
 
 
 
