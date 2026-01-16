@@ -907,11 +907,11 @@
         // Mapeo de campos.
         let ifr = (finalPayload.codigo ?? finalPayload.ifr ?? "").toString().toUpperCase();
         let cantidad = (finalPayload.cantidadSugerida ?? finalPayload.cantidad ?? "").toString();
-
+        let fechaFlujo = (finalPayload.fecha ?? "").toString();
+        
         inputVertIfr.value = ifr;
         inputVertCantidad.value = cantidad;
-        // La fecha de ingreso se establece al crear, no al cargar info.
-        inputVertFecha.value = ""; 
+        inputVertFecha.value = fechaFlujo;
         inputVertProveedor.value = (finalPayload.proveedor ?? "VERTICALIZADA").toString().toUpperCase();
 
         setStatus(
@@ -1039,5 +1039,6 @@
       inputSku.value = "";
     });
   </script>
+
 
 
