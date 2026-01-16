@@ -782,85 +782,70 @@
     // ============================================
     //  OTROS PROVEEDORES
     // ============================================
-    const formOtros = document.getElementById("form-otros");
-    const statusOtros = document.getElementById("status-otros");
-    const btnOtrosCrear = document.getElementById("btn-otros-crear");
-    const btnOtrosLimpiar = document.getElementById("btn-otros-limpiar");
+// ============================================
+//  OTROS PROVEEDORES (CORREGIDO PARA SCHEMA)
+// ============================================
+const formOtros = document.getElementById("form-otros");
+const statusOtros = document.getElementById("status-otros");
+const btnOtrosCrear = document.getElementById("btn-otros-crear");
+const btnOtrosLimpiar = document.getElementById("btn-otros-limpiar");
 
-    btnOtrosCrear.addEventListener("click", async () => {
-      setStatus(statusOtros, null, "");
-      if (!formOtros.reportValidity()) {
-        setStatus(statusOtros, "err", "Revisá los campos obligatorios antes de crear la bobina.");
-        return;
-      }
+btnOtrosCrear.addEventListener("click", async () => {
+  setStatus(statusOtros, null, "");
+  
+  if (!formOtros.reportValidity()) {
+    setStatus(statusOtros, "err", "Revisá los campos obligatorios antes de crear la bobina.");
+    return;
+  }
 
-      const ifr = document.getElementById("otros-ifr").value.trim().toUpperCase();
-      const cantidad = document.getElementById("otros-cantidad").value.trim();
-      const proveedor = document.getElementById("otros-proveedor").value.trim().toUpperCase();
-      const fecha = document.getElementById("otros-fecha").value;
-      const numeroBobinasRaw = document.getElementById("otros-num-bobinas").value.trim();
-      const numeroBobinasNum = Number(numeroBobinasRaw);
-      const ubicacion = document.getElementById("otros-ubicacion").value.trim().toUpperCase();
+  // Capturamos y convertimos los datos para que coincidan con el SCHEMA
+  const codigo = document.getElementById("otros-ifr").value.trim().toUpperCase();
+  const cantidadRaw = document.getElementById("otros-cantidad").value;
+  const proveedor = document.getElementById("otros-proveedor").value.trim().toUpperCase();
+  const fechaIngreso = document.getElementById("otros-fecha").value;
+  const numBobinasRaw = document.getElementById("otros-num-bobinas").value;
+  const ubicacion = document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "ALMACEN";
 
-      if (!numeroBobinasRaw || isNaN(numeroBobinasNum) || numeroBobinasNum <= 0) {
-        setStatus(statusOtros, "err", "El número de bobinas debe ser un valor numérico mayor que 0.");
-        return;
-      }
+  // IMPORTANTE: El Schema pide Integer. Usamos parseInt para asegurar el tipo de dato.
+  const payload = {
+    codigo: codigo,
+    cantidadPorBobina: parseInt(cantidadRaw, 10),
+    proveedor: proveedor,
+    fechaIngreso: fechaIngreso, // Formato YYYY-MM-DD
+    ubicacion: ubicacion,
+    numeroBobinas: parseInt(numBobinasRaw, 10)
+  };
 
-      const payload = {
-        origen: "OTROS_PROVEEDORES",
-        ifr,
-        cantidad,
-        proveedor,
-        fecha,
-        numeroBobinas: numeroBobinasNum,
-        ubicacion: ubicacion || null,
-      };
+  try {
+    disableButton(btnOtrosCrear, true);
+    setStatus(statusOtros, "ok", "Enviando datos al flujo...");
 
-      try {
-        disableButton(btnOtrosCrear, true);
-        setStatus(statusOtros, "ok", "Creando bobina en la BDD…");
+    const { ok, data, status } = await llamarFlujoCrearBobinaOtros(payload);
 
-        const { ok, data, status } = await llamarFlujoCrearBobinaOtros(payload);
+    if (ok) {
+      // Como tu flujo ahora es Síncrono, 'data' contiene los IDs creados
+      let msg = "✅ Proceso completado con éxito.";
+      
+      if (data && data.ids) {
+          msg += `<br>IDs generados: <code>${data.ids.join(", ")}</code>`;
+      }
 
-        // Con llamarPOST corregida, 'ok' será true para 200 y 202
-        if (ok) {
-          let msg = "Bobina enviada para creación. ";
-          let id = "(Pendiente de asignación)";
-
-          if (status === 200 && data) {
-            // Si obtuvimos 200, intentamos leer el ID
-            id = data.bobinaid || data.id || data.codigo || data.ids?.[0] || "(sin ID devuelto)";
-            msg = "Bobina creada exitosamente. ";
-          } else if (status === 202) {
-            // Mensaje para la respuesta 202 asíncrona
-            msg += "El proceso está en curso (Status 202).";
-          }
-
-          setStatus(
-            statusOtros,
-            "ok",
-            `${msg} ID: <code>${id}</code>`
-          );
-        } else {
-          console.error("Respuesta flujo crear (otros):", data);
-          setStatus(
-            statusOtros,
-            "err",
-            "No se pudo crear la bobina. Revisá el flujo o los datos enviados. (Status: " + status + ")"
-          );
-        }
-      } catch (e) {
-        console.error(e);
-        setStatus(
-          statusOtros,
-          "err",
-          "Error llamando al flujo de creación. Ver consola del navegador para más detalles."
-        );
-      } finally {
-        disableButton(btnOtrosCrear, false);
-      }
-    });
+      setStatus(statusOtros, "ok", msg);
+    } else {
+      console.error("Respuesta Error:", data);
+      setStatus(
+        statusOtros,
+        "err",
+        `Error 400: Los datos no coinciden con lo que espera el flujo. (Status: ${status})`
+      );
+    }
+  } catch (e) {
+    console.error(e);
+    setStatus(statusOtros, "err", "Error de conexión con el servidor.");
+  } finally {
+    disableButton(btnOtrosCrear, false);
+  }
+});
 
     btnOtrosLimpiar.addEventListener("click", () => {
       setStatus(statusOtros, null, "");
@@ -1097,6 +1082,7 @@ btnVertImprimir.addEventListener("click", async () => {
 });
     
   </script>
+
 
 
 
