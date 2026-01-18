@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Almacén de Etiqeutas CQ - Alta de Bobinas</title>
+  <title>Almacén de Etiquetas CQ - Alta de Bobinas</title>
   <style>
     :root {
       --radius: 12px;
@@ -103,35 +103,35 @@
 <body>
   <main class="app">
     <header>
-      <h1>Sistema Bobinas</h1>
+      <h1>ALMACÉN DE ETIQUETAS CQ</h1>
       <button id="btn-home-top" type="button">🏠 Inicio</button>
     </header>
 
     <section id="screen-home" class="screen active">
-      <span class="section-label">MÓDULOS DE ALTA (NUEVAS BOBINAS)</span>
+      <span class="section-label">MÓDULO DE INGRESOS</span>
       <div class="grid-options">
         <div class="card-opt" onclick="showScreen('vert')">
           <div>
             <h3>⚙️ Verticalizada</h3>
-            <p><strong>Dar de alta</strong> bobinas desde SKU. El sistema recupera automáticamente los datos de fabricación.</p>
+            <p><strong>Dar de alta</strong> bobinas con el ID original de la Verticalizada. No imprime automáticamente ya que la bobina debería venir con rótulo de origen.</p>
           </div>
           <button class="btn btn-soft">Ingresar</button>
         </div>
         <div class="card-opt" onclick="showScreen('otros')">
           <div>
             <h3>📦 Otros Proveedores</h3>
-            <p><strong>Dar de alta</strong> bobinas de forma manual. Para proveedores externos o casos especiales.</p>
+            <p><strong>Dar de alta</strong> bobinas de forma manual. Para proveedores externos. Imprime automáticamente.</p>
           </div>
           <button class="btn btn-soft">Ingresar</button>
         </div>
       </div>
 
-      <span class="section-label">MANTENIMIENTO</span>
+      <span class="section-label">MÓDULO DE MANTENIMIENTO</span>
       <div class="grid-options" style="grid-template-columns: 1fr;">
         <div class="card-opt" onclick="showScreen('reimpresion')">
           <div>
             <h3>🖨️ Reimpresión de Etiquetas</h3>
-            <p>Generar duplicados de rótulos ZPL para bobinas que <strong>ya existen</strong> en la base de datos.</p>
+            <p>Generar duplicados de rótulos ZPL para bobinas que <strong>ya existen</strong> en la base de datos, buscando por el ID de la misma.</p>
           </div>
           <button class="btn btn-outline" style="max-width: 200px;">Acceder</button>
         </div>
@@ -205,7 +205,7 @@
         <h2 style="margin: 5px 0 0 0; font-size: 1.5rem;">Reimpresión de Etiqueta</h2>
       </div>
       <div class="field">
-        <label>ID Único de Bobina (CQ...)</label>
+        <label>ID Único de Bobina (Ej.: CQ345, 00154000000002327365, etc.)</label>
         <div style="display:flex; gap:10px;">
           <input id="reimp-id" placeholder="Ej: CQ1234" style="flex:1" />
           <button type="button" id="btn-reimp-buscar" class="btn btn-soft">🔍 Buscar</button>
@@ -354,3 +354,4 @@
   </script>
 </body>
 </html>
+
