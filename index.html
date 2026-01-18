@@ -262,22 +262,38 @@
     }
 
     // --- OTROS ---
-    document.getElementById("btn-otros-crear").addEventListener("click", async () => {
-      const st = document.getElementById("status-otros");
-      const payload = {
-        codigo: document.getElementById("otros-ifr").value.trim().toUpperCase(),
-        cantidadPorBobina: parseInt(document.getElementById("otros-cantidad").value),
-        proveedor: document.getElementById("otros-proveedor").value,
-        fechaIngreso: document.getElementById("otros-fecha").value,
-        ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "",
-        numeroBobinas: parseInt(document.getElementById("otros-num-bobinas").value)
-      };
-      setStatus(st, "ok", "Enviando a SharePoint e Impresora...");
-      const { ok, data } = await llamarPOST(FLOW_URL_CREAR_OTROS, payload);
-      if(ok) {
-        setStatus(st, "ok", `<strong>Bobinas Creadas:</strong> ${data.ids ? data.ids.join(", ") : "OK"}<br><strong>Impresiones creadas en carpeta</strong>`);
-      } else setStatus(st, "err", "Error al procesar la solicitud.");
-    });
+document.getElementById("btn-otros-crear").addEventListener("click", async () => {
+  const st = document.getElementById("status-otros");
+  
+  // 1. Capturamos la fecha del input (YYYY-MM-DD)
+  const fechaRaw = document.getElementById("otros-fecha").value; 
+  
+  // 2. La transformamos a D-M-YYYY
+  let fechaFormateada = "";
+  if (fechaRaw) {
+    const [y, m, d] = fechaRaw.split('-');
+    // Number() elimina el cero inicial (ej: "01" pasa a "1")
+    fechaFormateada = `${Number(d)}-${Number(m)}-${y}`; 
+  }
+
+  const payload = {
+    codigo: document.getElementById("otros-ifr").value.trim().toUpperCase(),
+    cantidadPorBobina: parseInt(document.getElementById("otros-cantidad").value),
+    proveedor: document.getElementById("otros-proveedor").value,
+    fechaIngreso: fechaFormateada, // <--- Ahora enviamos "18-1-2026"
+    ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "",
+    numeroBobinas: parseInt(document.getElementById("otros-num-bobinas").value)
+  };
+
+  setStatus(st, "ok", "Procesando en SharePoint e Impresora...");
+  const { ok, data } = await llamarPOST(FLOW_URL_CREAR_OTROS, payload);
+  
+  if(ok) {
+    setStatus(st, "ok", `<strong>Bobinas Creadas:</strong> ${data.ids ? data.ids.join(", ") : "OK"}<br><br><strong>Impresiones creadas en carpeta</strong>`);
+  } else {
+    setStatus(st, "err", "Error al procesar la solicitud.");
+  }
+});
 
     // --- VERTICALIZADA ---
     document.getElementById("btn-vert-cargar-info").addEventListener("click", async () => {
@@ -382,6 +398,7 @@ document.getElementById("btn-vert-crear").addEventListener("click", async () => 
   </script>
 </body>
 </html>
+
 
 
 
