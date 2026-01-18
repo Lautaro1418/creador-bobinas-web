@@ -313,14 +313,32 @@
       else setStatus(st, "err", "Error en el alta de bobina.");
     });
 
-    document.getElementById("btn-vert-imprimir").addEventListener("click", async () => {
-        const id = document.getElementById("vert-sku").value;
-        const cod = document.getElementById("vert-ifr").value;
-        if(!cod) return;
-        setStatus(document.getElementById("status-vert"), "ok", "Enviando orden de impresión...");
-        await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { cod: cod, desc: document.getElementById("vert-descripcion").value, fecha: document.getElementById("vert-fecha").value, id_unico: id });
-        setStatus(document.getElementById("status-vert"), "ok", "✅ Impresión enviada.");
+   document.getElementById("btn-vert-imprimir").addEventListener("click", async () => {
+    const id = document.getElementById("vert-sku").value;
+    const cod = document.getElementById("vert-ifr").value;
+    const desc = document.getElementById("vert-descripcion").value;
+    const fechaRaw = document.getElementById("vert-fecha").value; // Viene como 2025-11-03
+
+    if(!cod) return;
+
+    // --- FORMATEO DE FECHA ---
+    let fechaFormateada = fechaRaw;
+    if (fechaRaw && fechaRaw.includes('-')) {
+        const [y, m, d] = fechaRaw.split('-');
+        fechaFormateada = `${parseInt(d)}-${parseInt(m)}-${y}`; // Resultado: 3-11-2025
+    }
+
+    setStatus(document.getElementById("status-vert"), "ok", "Enviando orden de impresión...");
+    
+    await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { 
+        cod: cod, 
+        desc: desc, 
+        fecha: fechaFormateada, // Enviamos la fecha formateada
+        id_unico: id 
     });
+    
+    setStatus(document.getElementById("status-vert"), "ok", "✅ Impresión enviada.");
+});
 
     // --- REIMPRESIÓN ---
     document.getElementById("btn-reimp-buscar").addEventListener("click", async () => {
@@ -354,6 +372,7 @@
   </script>
 </body>
 </html>
+
 
 
 
