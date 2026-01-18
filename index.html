@@ -266,11 +266,19 @@ document.getElementById("btn-otros-crear").addEventListener("click", async () =>
   const st = document.getElementById("status-otros");
   
   // Capturamos los datos limpios
+  const fechaRaw = document.getElementById("otros-fecha").value; // "2026-01-18"
+let fechaParaFlujo = fechaRaw;
+
+if (fechaRaw) {
+    const [y, m, d] = fechaRaw.split('-');
+    fechaParaFlujo = `${d}-${m}-${y}`; // Esto genera "18-01-2026"
+}
+  
   const payload = {
     codigo: document.getElementById("otros-ifr").value.trim().toUpperCase(),
     cantidadPorBobina: parseInt(document.getElementById("otros-cantidad").value),
     proveedor: document.getElementById("otros-proveedor").value,
-    fechaIngreso: document.getElementById("otros-fecha").value, // <--- ESTO DEBE SER ASÍ (Manda 2026-01-18)
+    fechaIngreso: fechaParaFlujo,
     ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "",
     numeroBobinas: parseInt(document.getElementById("otros-num-bobinas").value)
   };
@@ -381,6 +389,7 @@ document.getElementById("btn-vert-crear").addEventListener("click", async () => 
   </script>
 </body>
 </html>
+
 
 
 
