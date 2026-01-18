@@ -6,150 +6,261 @@
   <title>Alta de Bobinas</title>
   <style>
     :root {
-      --radius: 14px;
-      --ink: #111827;
-      --muted: #4b5563;
+      --radius: 12px;
+      --ink: #1f2937;
+      --muted: #6b7280;
       --bg: #f3f4f6;
       --ok: #065f46;
       --err: #991b1b;
       --accent: #1e3a8a;
       --accent-strong: #1d4ed8;
-      --accent-soft: #dbeafe;
+      --accent-soft: #f0f7ff;
     }
 
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #e5e7eb, #f9fafb); color: var(--ink); min-height: 100vh; padding: 24px 12px; display: flex; justify-content: center; }
-    .app { width: 100%; max-width: 900px; background: white; border-radius: 18px; box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18); padding: 20px 18px 22px; }
-    
-    header { position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
-    header h1 { margin: 0; font-size: 1.45rem; font-weight: 700; }
-    
-    #btn-home-top { position: absolute; right: 0; border-radius: 999px; border: 1px solid #e5e7eb; background: #ffffff; padding: 6px 14px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; display: none; }
-    #btn-home-top.active { display: inline-flex; background: var(--accent); color: white; border: none; }
+    body { 
+      margin: 0; 
+      font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+      background: #f8fafc; 
+      color: var(--ink); 
+      min-height: 100vh; 
+      padding: 20px 10px; 
+      display: flex; 
+      justify-content: center; 
+    }
 
-    .screen { display: none; border-radius: var(--radius); border: 1px solid #e5e7eb; background: #f9fafb; padding: 16px 14px 18px; }
+    .app { 
+      width: 100%; 
+      max-width: 850px; 
+      background: white; 
+      border-radius: 20px; 
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); 
+      padding: 24px; 
+    }
+
+    header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 24px; 
+      padding-bottom: 15px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    header h1 { margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: -0.025em; }
+    
+    #btn-home-top { 
+      border-radius: 8px; 
+      border: 1px solid #e2e8f0; 
+      background: white; 
+      padding: 8px 12px; 
+      font-size: 0.85rem; 
+      font-weight: 600;
+      cursor: pointer; 
+      transition: all 0.2s; 
+      display: none;
+      color: var(--muted);
+    }
+    #btn-home-top.active { display: flex; align-items: center; gap: 5px; }
+    #btn-home-top:hover { background: #f8fafc; color: var(--accent); }
+
+    .screen { display: none; animation: fadeIn 0.3s ease; }
     .screen.active { display: block; }
-    .screen-title-strong { font-size: 1.1rem; color: var(--accent-strong); border-left: 4px solid var(--accent-strong); padding-left: 8px; margin-bottom: 8px; font-weight: 700; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
-    @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
+    .grid-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    
+    .card-opt { 
+      border-radius: var(--radius); 
+      border: 1px solid #e2e8f0; 
+      background: white; 
+      padding: 20px; 
+      transition: all 0.2s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-opt:hover { border-color: var(--accent-strong); box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateY(-2px); }
+    .card-opt h3 { margin: 0 0 8px; font-size: 1.1rem; }
+    .card-opt p { margin: 0 0 16px; font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
 
-    .card { border-radius: 12px; border: 1px dashed #e5e7eb; background: white; padding: 12px; display: flex; flex-direction: column; }
-    .btn { border-radius: 999px; cursor: pointer; font-size: 0.85rem; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; transition: all 0.1s; }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
-    .btn-soft { background: #e0ecff; color: var(--accent-strong); border: 1px solid #bfdbfe; }
-    .btn-outline { background: #ffffff; color: var(--accent-strong); border: 1px solid var(--accent-strong); }
+    .btn { 
+      border-radius: 8px; 
+      cursor: pointer; 
+      font-size: 0.85rem; 
+      padding: 10px 20px; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 8px; 
+      font-weight: 600; 
+      transition: all 0.2s; 
+      border: none;
+    }
+    .btn-primary { background: var(--accent); color: white; width: 100%; }
+    .btn-primary:hover { background: var(--accent-strong); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-soft { background: var(--accent-soft); color: var(--accent-strong); }
+    .btn-outline { background: transparent; border: 1px solid #e2e8f0; color: var(--muted); }
 
-    .field-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    @media (max-width: 600px) { .field-grid { grid-template-columns: 1fr; } }
+    .form-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 10px; }
+    @media (max-width: 600px) { .form-container { grid-template-columns: 1fr; } }
 
-    .field { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; }
-    .field label { font-weight: 600; }
-    .field label span.req { color: #dc2626; } /* ESTRELLA ROJA */
-    .field input { border-radius: 8px; border: 1px solid #d1d5db; padding: 8px; font-size: 0.85rem; outline: none; }
-    .field input[readonly] { background: #eeeeee; color: #666; cursor: not-allowed; border-color: #d1d5db; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+    .field label span.req { color: #ef4444; margin-left: 2px; }
+    .field input { 
+      border-radius: 8px; 
+      border: 1px solid #d1d5db; 
+      padding: 10px 12px; 
+      font-size: 0.9rem; 
+      color: var(--ink);
+      background: #ffffff;
+      transition: border-color 0.2s;
+    }
+    .field input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+    .field input[readonly] { background: #f8fafc; color: #64748b; border-color: #e2e8f0; font-weight: 500; }
 
-    .status { margin-top: 15px; font-size: 0.85rem; padding: 12px; border-radius: 8px; display: none; width: 100%; border-left: 5px solid; }
+    .status { 
+      margin-top: 20px; 
+      font-size: 0.85rem; 
+      padding: 14px; 
+      border-radius: var(--radius); 
+      display: none; 
+      line-height: 1.6;
+    }
     .status.visible { display: block; }
-    .status.ok { background: #ecfdf3; color: var(--ok); border-color: #059669; }
-    .status.err { background: #fef2f2; color: var(--err); border-color: #dc2626; }
+    .status.ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .status.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
-    .separator-strong { border: none; border-top: 2px solid #e5e7eb; margin: 24px 0; position: relative; }
-    .separator-strong::after { content: "DATOS DE LA BOBINA"; position: absolute; top: -10px; left: 20px; background: #f9fafb; padding: 0 10px; font-size: 0.65rem; font-weight: 800; color: var(--muted); }
+    .section-divider { 
+      grid-column: 1 / -1; 
+      margin: 10px 0; 
+      font-size: 0.7rem; 
+      font-weight: 800; 
+      color: #94a3b8; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+    }
+    .section-divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
   </style>
 </head>
 <body>
   <main class="app">
     <header>
-      <h1>Alta de Bobinas</h1>
+      <h1>Sistema Bobinas</h1>
       <button id="btn-home-top" type="button">🏠 Inicio</button>
     </header>
 
     <section id="screen-home" class="screen active">
-      <div class="screen-title-strong">Panel de Control</div>
-      <div class="grid-3">
-        <div class="card">
-          <h3>⚙️ Verticalizada</h3>
-          <p style="font-size:0.75rem; color:#666;">Carga automática vía SKU.</p>
-          <button class="btn btn-primary" style="margin-top:auto" data-screen-jump="vert">Ingresar</button>
+      <div class="grid-options">
+        <div class="card-opt" onclick="showScreen('vert')">
+          <div>
+            <h3>⚙️ Verticalizada</h3>
+            <p>Carga automática. Escaneá el SKU y el sistema recupera los datos de fabricación.</p>
+          </div>
+          <button class="btn btn-soft">Comenzar</button>
         </div>
-        <div class="card">
-          <h3>📦 Otros Prov.</h3>
-          <p style="font-size:0.75rem; color:#666;">Carga manual externa.</p>
-          <button class="btn btn-primary" style="margin-top:auto" data-screen-jump="otros">Ingresar</button>
+        <div class="card-opt" onclick="showScreen('otros')">
+          <div>
+            <h3>📦 Otros Proveedores</h3>
+            <p>Carga manual. Para bobinas que no pertenecen al flujo verticalizado estándar.</p>
+          </div>
+          <button class="btn btn-soft">Comenzar</button>
         </div>
-        <div class="card">
-          <h3>🖨️ Reimpresión</h3>
-          <p style="font-size:0.75rem; color:#666;">Reimprimir etiquetas CQ.</p>
-          <button class="btn btn-secondary" style="margin-top:auto" data-screen-jump="reimpresion">Ingresar</button>
+        <div class="card-opt" onclick="showScreen('reimpresion')">
+          <div>
+            <h3>🖨️ Reimpresión</h3>
+            <p>Generar duplicados de etiquetas para bobinas que ya fueron dadas de alta.</p>
+          </div>
+          <button class="btn btn-outline">Acceder</button>
         </div>
       </div>
     </section>
 
     <section id="screen-otros" class="screen">
-      <div class="screen-title-strong">Otros Proveedores</div>
+      <div style="margin-bottom: 20px;">
+        <span style="color: var(--accent); font-weight: 800; font-size: 0.9rem;">ENTRADA MANUAL</span>
+        <h2 style="margin: 5px 0 0 0; font-size: 1.5rem;">Otros Proveedores</h2>
+      </div>
       <form id="form-otros">
-        <div class="field-grid">
+        <div class="form-container">
           <div class="field"><label>IFR <span class="req">*</span></label><input id="otros-ifr" required /></div>
           <div class="field"><label>Cantidad <span class="req">*</span></label><input id="otros-cantidad" type="number" step="0.01" required /></div>
           <div class="field"><label>Proveedor <span class="req">*</span></label><input id="otros-proveedor" required /></div>
           <div class="field"><label>Fecha <span class="req">*</span></label><input id="otros-fecha" type="date" required /></div>
-          <div class="field"><label>Número de bobinas <span class="req">*</span></label><input id="otros-num-bobinas" type="number" min="1" required /></div>
-          <div class="field"><label>Ubicación</label><input id="otros-ubicacion" /></div>
+          <div class="field"><label>Cant. Bobinas <span class="req">*</span></label><input id="otros-num-bobinas" type="number" min="1" required /></div>
+          <div class="field"><label>Ubicación</label><input id="otros-ubicacion" placeholder="Opcional..." /></div>
         </div>
-        <div style="margin-top:15px; display:flex; gap:10px;">
-          <button type="button" id="btn-otros-crear" class="btn btn-primary">✅ Crear bobinas</button>
-          <button type="reset" class="btn btn-secondary">Limpiar</button>
+        <div style="margin-top:20px; display:flex; gap:12px;">
+          <button type="button" id="btn-otros-crear" class="btn btn-primary" style="flex:2">✅ Crear Bobinas e Imprimir</button>
+          <button type="reset" class="btn btn-secondary" style="flex:1">Limpiar</button>
         </div>
         <div id="status-otros" class="status"></div>
       </form>
     </section>
 
     <section id="screen-vert" class="screen">
-      <div class="screen-title-strong">Verticalizada</div>
-      <div class="field">
-        <label>SKU único <span class="req">*</span></label>
-        <input id="vert-sku" placeholder="Escribí o escaneá..." />
+      <div style="margin-bottom: 20px;">
+        <span style="color: var(--accent); font-weight: 800; font-size: 0.9rem;">FLUJO AUTOMÁTICO</span>
+        <h2 style="margin: 5px 0 0 0; font-size: 1.5rem;">Verticalizada</h2>
       </div>
-      <button type="button" id="btn-vert-cargar-info" class="btn btn-soft" style="margin-top:10px">🔄 Cargar info</button>
-      <div class="separator-strong"></div>
-      <form id="form-vert">
-        <div class="field-grid">
+      <div class="field">
+        <label>Escanear SKU de Bobina <span class="req">*</span></label>
+        <div style="display:flex; gap:10px;">
+          <input id="vert-sku" placeholder="SKU único..." style="flex:1" />
+          <button type="button" id="btn-vert-cargar-info" class="btn btn-soft">Cargar Info</button>
+        </div>
+      </div>
+
+      <form id="form-vert" style="margin-top:20px;">
+        <div class="section-divider">DATOS RECUPERADOS</div>
+        <div class="form-container">
           <div class="field"><label>IFR</label><input id="vert-ifr" readonly /></div>
-          <div class="field"><label>Descripción</label><input id="vert-descripcion" readonly /></div>
           <div class="field"><label>Cantidad</label><input id="vert-cantidad" readonly /></div>
           <div class="field"><label>Fecha</label><input id="vert-fecha" readonly /></div>
           <div class="field"><label>Proveedor</label><input id="vert-proveedor" value="VERTICALIZADA" readonly /></div>
-          <div class="field"><label>Ubicación</label><input id="vert-ubicacion" /></div>
+          <div class="field" style="grid-column: 1 / -1;"><label>Descripción</label><input id="vert-descripcion" readonly /></div>
+          <div class="field" style="grid-column: 1 / -1;"><label>Ubicación Manual</label><input id="vert-ubicacion" placeholder="Ej: ESTANTERÍA A-1" /></div>
         </div>
-        <div style="margin-top:15px; display:flex; gap:10px;">
-          <button type="button" id="btn-vert-crear" class="btn btn-primary">✅ Crear bobina</button>
-          <button type="button" id="btn-vert-imprimir" class="btn btn-outline">🖨️ Solo Imprimir</button>
+        <div style="margin-top:20px; display:flex; gap:12px;">
+          <button type="button" id="btn-vert-crear" class="btn btn-primary" style="flex:2">✅ Confirmar Alta</button>
+          <button type="button" id="btn-vert-imprimir" class="btn btn-outline" style="flex:1">🖨️ Solo Imprimir</button>
         </div>
         <div id="status-vert" class="status"></div>
       </form>
     </section>
 
     <section id="screen-reimpresion" class="screen">
-      <div class="screen-title-strong">Reimpresión</div>
+      <div style="margin-bottom: 20px;">
+        <span style="color: var(--accent); font-weight: 800; font-size: 0.9rem;">MANTENIMIENTO</span>
+        <h2 style="margin: 5px 0 0 0; font-size: 1.5rem;">Reimpresión de Etiqueta</h2>
+      </div>
       <div class="field">
-        <label>ID Único (CQ...) <span class="req">*</span></label>
-        <input id="reimp-id" placeholder="Ej: CQ1234" />
+        <label>ID Único de Bobina (CQ...)</label>
+        <div style="display:flex; gap:10px;">
+          <input id="reimp-id" placeholder="Ej: CQ1234" style="flex:1" />
+          <button type="button" id="btn-reimp-buscar" class="btn btn-soft">🔍 Buscar</button>
+        </div>
       </div>
-      <button type="button" id="btn-reimp-buscar" class="btn btn-soft" style="margin-top:10px">🔍 Buscar datos</button>
-      <div class="separator-strong"></div>
-      <div class="field-grid">
-        <div class="field"><label>IFR</label><input id="reimp-ifr" readonly /></div>
-        <div class="field"><label>Descripción</label><input id="reimp-desc" readonly /></div>
-        <div class="field"><label>Fecha</label><input id="reimp-fecha" readonly /></div>
+      
+      <div id="reimp-result" style="margin-top:20px; display:none;">
+        <div class="section-divider">INFORMACIÓN ENCONTRADA</div>
+        <div class="form-container">
+          <div class="field"><label>IFR</label><input id="reimp-ifr" readonly /></div>
+          <div class="field"><label>Fecha</label><input id="reimp-fecha" readonly /></div>
+          <div class="field" style="grid-column: 1 / -1;"><label>Descripción</label><input id="reimp-desc" readonly /></div>
+        </div>
+        <button type="button" id="btn-reimp-imprimir" class="btn btn-primary" style="margin-top:20px;">🖨️ Mandar a Impresora</button>
       </div>
-      <button type="button" id="btn-reimp-imprimir" class="btn btn-primary" style="margin-top:15px; width:100%;">🖨️ Imprimir ZPL</button>
       <div id="status-reimp" class="status"></div>
     </section>
   </main>
 
   <script>
+    // --- URLs ---
     const FLOW_URL_CREAR_OTROS = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a3aa1e84c2c84404ab6a7f928707e025/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=AYJPbL7RoJjCCgMPnRcoWPHOgQcEh_gGMetpr6z5h3k";
     const FLOW_URL_CREAR_VERT = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/13b36bcf579d431f81f964b55909950e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=llG5XyDdjYuESJWq9CN-uKKJQ8mHeZUlMY0FbKdNnB0";
     const FLOW_URL_VERTICALIZADA_INFO = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fe0015c3370a4e4485b1174a1235a4df/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=T4OsXa8va0paJ_DPD4DmbsdDNdVk-2LMh618K1ayt3Y";
@@ -165,14 +276,11 @@
       if(name === "otros") setTodayDate("otros-fecha");
     }
 
-    document.querySelectorAll("[data-screen-jump]").forEach(btn => btn.addEventListener("click", () => showScreen(btn.dataset.screenJump)));
     btnHomeTop.addEventListener("click", () => showScreen("home"));
 
     function setTodayDate(id) {
       const input = document.getElementById(id);
-      if (input && !input.value) {
-        input.value = new Date().toISOString().split('T')[0];
-      }
+      if (input && !input.value) input.value = new Date().toISOString().split('T')[0];
     }
 
     function setStatus(el, type, msg) {
@@ -189,7 +297,7 @@
       return { ok: isOk, data };
     }
 
-    // OTROS
+    // --- OTROS ---
     document.getElementById("btn-otros-crear").addEventListener("click", async () => {
       const st = document.getElementById("status-otros");
       const payload = {
@@ -197,29 +305,29 @@
         cantidadPorBobina: parseInt(document.getElementById("otros-cantidad").value),
         proveedor: document.getElementById("otros-proveedor").value.trim().toUpperCase(),
         fechaIngreso: document.getElementById("otros-fecha").value,
-        ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "",
+        ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase(),
         numeroBobinas: parseInt(document.getElementById("otros-num-bobinas").value)
       };
-      setStatus(st, "ok", "Procesando...");
+      setStatus(st, "ok", "Enviando a SharePoint e Impresora...");
       const { ok, data } = await llamarPOST(FLOW_URL_CREAR_OTROS, payload);
       if(ok) {
-        setStatus(st, "ok", `<b>Bobinas Creadas:</b> ${data.ids ? data.ids.join(", ") : "OK"}<br><br><b>Impresiones creadas en carpeta</b>`);
-      } else setStatus(st, "err", "Error al crear.");
+        setStatus(st, "ok", `<strong>Bobinas Creadas:</strong> ${data.ids ? data.ids.join(", ") : "OK"}<br><strong>Impresiones creadas en carpeta</strong>`);
+      } else setStatus(st, "err", "Error al procesar la solicitud.");
     });
 
-    // VERTICALIZADA
+    // --- VERTICALIZADA ---
     document.getElementById("btn-vert-cargar-info").addEventListener("click", async () => {
       const sku = document.getElementById("vert-sku").value.trim();
       const st = document.getElementById("status-vert");
       if(!sku) return;
-      setStatus(st, "ok", "Buscando...");
+      setStatus(st, "ok", "Consultando base de datos...");
       const { ok, data } = await llamarPOST(FLOW_URL_VERTICALIZADA_INFO, { codigo: sku });
       if(ok && data.ok) {
         document.getElementById("vert-ifr").value = data.codigo;
         document.getElementById("vert-descripcion").value = data.descripcion;
         document.getElementById("vert-cantidad").value = data.cantidadSugerida;
         document.getElementById("vert-fecha").value = data.fecha;
-        setStatus(st, "ok", "Datos cargados.");
+        setStatus(st, "ok", "Información recuperada con éxito.");
       } else setStatus(st, "err", "SKU no encontrado.");
     });
 
@@ -235,55 +343,50 @@
         descripcion: document.getElementById("vert-descripcion").value,
         numeroBobinas: 1
       };
-      setStatus(st, "ok", "Registrando...");
+      setStatus(st, "ok", "Confirmando registro...");
       const { ok } = await llamarPOST(FLOW_URL_CREAR_VERT, payload);
-      if(ok) setStatus(st, "ok", "✅ Bobina creada correctamente.");
-      else setStatus(st, "err", "Error en el registro.");
+      if(ok) setStatus(st, "ok", "✅ Bobina dada de alta correctamente.");
+      else setStatus(st, "err", "Error en el alta de bobina.");
     });
 
     document.getElementById("btn-vert-imprimir").addEventListener("click", async () => {
         const id = document.getElementById("vert-sku").value;
         const cod = document.getElementById("vert-ifr").value;
-        const desc = document.getElementById("vert-descripcion").value;
-        const fecha = document.getElementById("vert-fecha").value;
         if(!cod) return;
-        setStatus(document.getElementById("status-vert"), "ok", "Imprimiendo...");
-        await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { cod: cod, desc: desc, fecha: fecha, id_unico: id });
-        setStatus(document.getElementById("status-vert"), "ok", "✅ Orden enviada.");
+        setStatus(document.getElementById("status-vert"), "ok", "Enviando orden de impresión...");
+        await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { cod: cod, desc: document.getElementById("vert-descripcion").value, fecha: document.getElementById("vert-fecha").value, id_unico: id });
+        setStatus(document.getElementById("status-vert"), "ok", "✅ Impresión enviada.");
     });
 
-    // REIMPRESIÓN
+    // --- REIMPRESIÓN ---
     document.getElementById("btn-reimp-buscar").addEventListener("click", async () => {
       const id = document.getElementById("reimp-id").value.trim().toUpperCase();
       const st = document.getElementById("status-reimp");
       if(!id) return;
-      setStatus(st, "ok", "Buscando ID...");
+      setStatus(st, "ok", "Buscando ID en SharePoint...");
       const { ok, data } = await llamarPOST(FLOW_URL_BUSCAR_ID, { id: id });
       if(ok && data.encontrado) {
         document.getElementById("reimp-ifr").value = data.codigo;
         document.getElementById("reimp-desc").value = data.descripcion;
         document.getElementById("reimp-fecha").value = data.fecha;
-        setStatus(st, "ok", "Datos encontrados.");
-      } else setStatus(st, "err", "ID no existe en SharePoint.");
+        document.getElementById("reimp-result").style.display = "block";
+        setStatus(st, "ok", "Registro encontrado.");
+      } else setStatus(st, "err", "El ID no existe o hubo un error.");
     });
 
     document.getElementById("btn-reimp-imprimir").addEventListener("click", async () => {
       const id = document.getElementById("reimp-id").value.trim();
-      const cod = document.getElementById("reimp-ifr").value;
-      if(!cod) return;
-      setStatus(document.getElementById("status-reimp"), "ok", "Imprimiendo...");
+      setStatus(document.getElementById("status-reimp"), "ok", "Imprimiendo duplicado...");
       await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { 
-        cod: cod, 
+        cod: document.getElementById("reimp-ifr").value, 
         desc: document.getElementById("reimp-desc").value, 
         fecha: document.getElementById("reimp-fecha").value, 
         id_unico: id 
       });
-      setStatus(document.getElementById("status-reimp"), "ok", "✅ Reimpresión enviada.");
+      setStatus(document.getElementById("status-reimp"), "ok", "✅ Reimpresión exitosa.");
     });
 
-    // Mayúsculas
     document.querySelectorAll("input").forEach(i => i.addEventListener("input", () => { if(i.type==="text") i.value = i.value.toUpperCase(); }));
   </script>
 </body>
 </html>
-
