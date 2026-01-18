@@ -295,23 +295,33 @@
       } else setStatus(st, "err", "SKU no encontrado.");
     });
 
-    document.getElementById("btn-vert-crear").addEventListener("click", async () => {
-      const st = document.getElementById("status-vert");
-      const payload = {
+document.getElementById("btn-vert-crear").addEventListener("click", async () => {
+    const st = document.getElementById("status-vert");
+    const fechaRaw = document.getElementById("vert-fecha").value;
+
+    // --- FORMATEO DE FECHA ---
+    let fechaFormateada = fechaRaw;
+    if (fechaRaw && fechaRaw.includes('-')) {
+        const [y, m, d] = fechaRaw.split('-');
+        fechaFormateada = `${parseInt(d)}-${parseInt(m)}-${y}`;
+    }
+
+    const payload = {
         sku: document.getElementById("vert-sku").value.trim().toUpperCase(),
         codigo: document.getElementById("vert-ifr").value,
         cantidadPorBobina: parseInt(document.getElementById("vert-cantidad").value),
         proveedor: "VERTICALIZADA",
-        fecha: document.getElementById("vert-fecha").value,
+        fecha: fechaFormateada, // Enviamos 3-11-2025
         ubicacion: document.getElementById("vert-ubicacion").value.trim().toUpperCase() || "",
         descripcion: document.getElementById("vert-descripcion").value,
         numeroBobinas: 1
-      };
-      setStatus(st, "ok", "Confirmando registro...");
-      const { ok } = await llamarPOST(FLOW_URL_CREAR_VERT, payload);
-      if(ok) setStatus(st, "ok", "✅ Bobina dada de alta correctamente.");
-      else setStatus(st, "err", "Error en el alta de bobina.");
-    });
+    };
+
+    setStatus(st, "ok", "Confirmando registro...");
+    const { ok } = await llamarPOST(FLOW_URL_CREAR_VERT, payload);
+    if(ok) setStatus(st, "ok", "✅ Bobina dada de alta correctamente.");
+    else setStatus(st, "err", "Error en el alta de bobina.");
+});
 
    document.getElementById("btn-vert-imprimir").addEventListener("click", async () => {
     const id = document.getElementById("vert-sku").value;
@@ -372,6 +382,7 @@
   </script>
 </body>
 </html>
+
 
 
 
