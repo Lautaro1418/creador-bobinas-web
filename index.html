@@ -261,26 +261,16 @@
       return { ok: isOk, data };
     }
 
-    // --- OTROS ---
+   // --- OTROS ---
 document.getElementById("btn-otros-crear").addEventListener("click", async () => {
   const st = document.getElementById("status-otros");
   
-  // 1. Capturamos la fecha del input (YYYY-MM-DD)
-  const fechaRaw = document.getElementById("otros-fecha").value; 
-  
-  // 2. La transformamos a D-M-YYYY
-  let fechaFormateada = "";
-  if (fechaRaw) {
-    const [y, m, d] = fechaRaw.split('-');
-    // Number() elimina el cero inicial (ej: "01" pasa a "1")
-    fechaFormateada = `${Number(d)}-${Number(m)}-${y}`; 
-  }
-
+  // Capturamos los datos limpios
   const payload = {
     codigo: document.getElementById("otros-ifr").value.trim().toUpperCase(),
     cantidadPorBobina: parseInt(document.getElementById("otros-cantidad").value),
     proveedor: document.getElementById("otros-proveedor").value,
-    fechaIngreso: fechaFormateada, // <--- Ahora enviamos "18-1-2026"
+    fechaIngreso: document.getElementById("otros-fecha").value, // <--- ESTO DEBE SER ASÍ (Manda 2026-01-18)
     ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "",
     numeroBobinas: parseInt(document.getElementById("otros-num-bobinas").value)
   };
@@ -311,27 +301,20 @@ document.getElementById("btn-otros-crear").addEventListener("click", async () =>
       } else setStatus(st, "err", "SKU no encontrado.");
     });
 
+
 document.getElementById("btn-vert-crear").addEventListener("click", async () => {
-    const st = document.getElementById("status-vert");
-    const fechaRaw = document.getElementById("vert-fecha").value;
-
-    // --- FORMATEO DE FECHA ---
-    let fechaFormateada = fechaRaw;
-    if (fechaRaw && fechaRaw.includes('-')) {
-        const [y, m, d] = fechaRaw.split('-');
-        fechaFormateada = `${parseInt(d)}-${parseInt(m)}-${y}`;
-    }
-
-    const payload = {
-        sku: document.getElementById("vert-sku").value.trim().toUpperCase(),
-        codigo: document.getElementById("vert-ifr").value,
-        cantidadPorBobina: parseInt(document.getElementById("vert-cantidad").value),
-        proveedor: "VERTICALIZADA",
-        fecha: fechaFormateada, // Enviamos 3-11-2025
-        ubicacion: document.getElementById("vert-ubicacion").value.trim().toUpperCase() || "",
-        descripcion: document.getElementById("vert-descripcion").value,
-        numeroBobinas: 1
-    };
+  const st = document.getElementById("status-vert");
+  const payload = {
+    sku: document.getElementById("vert-sku").value.trim().toUpperCase(),
+    codigo: document.getElementById("vert-ifr").value,
+    cantidadPorBobina: parseInt(document.getElementById("vert-cantidad").value),
+    proveedor: "VERTICALIZADA",
+    fecha: document.getElementById("vert-fecha").value, // <--- ESTO DEBE SER ASÍ
+    ubicacion: document.getElementById("vert-ubicacion").value.trim().toUpperCase() || "",
+    descripcion: document.getElementById("vert-descripcion").value,
+    numeroBobinas: 1
+  };
+  // ... resto del código igual
 
     setStatus(st, "ok", "Confirmando registro...");
     const { ok } = await llamarPOST(FLOW_URL_CREAR_VERT, payload);
@@ -398,6 +381,7 @@ document.getElementById("btn-vert-crear").addEventListener("click", async () => 
   </script>
 </body>
 </html>
+
 
 
 
