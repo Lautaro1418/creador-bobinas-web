@@ -28,7 +28,7 @@
       padding: 20px 10px; 
       display: flex; 
       justify-content: center;
-      align-items: flex-start; /* Hace que no se estire al 100% de la altura */
+      align-items: flex-start;
     }
 
     .app { 
@@ -38,7 +38,7 @@
       border-radius: 20px; 
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); 
       padding: 24px;
-      height: auto; /* Ajuste automático al contenido */
+      height: auto; 
       margin-bottom: 40px;
     }
 
@@ -63,7 +63,6 @@
     .screen.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* DIFERENCIACIÓN DE PANELES */
     .section-label { font-size: 0.75rem; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 10px; display: block; }
     .grid-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 30px; }
     
@@ -79,7 +78,6 @@
     .btn-primary { background: var(--accent); color: white; width: 100%; }
     .btn-secondary { background: #f1f5f9; color: #475569; }
     .btn-soft { background: var(--accent-soft); color: var(--accent-strong); }
-    .btn-cam { background: #f1f5f9; font-size: 1.2rem; padding: 5px 15px; border: 1px solid #e2e8f0; }
     .btn-outline { background: transparent; border: 1px solid #e2e8f0; color: var(--muted); width: 100%; }
 
     .form-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 10px; }
@@ -101,14 +99,13 @@
     .section-divider { grid-column: 1 / -1; margin: 10px 0; font-size: 0.7rem; font-weight: 800; color: #94a3b8; display: flex; align-items: center; gap: 10px; }
     .section-divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
 
-    /* Overlay del Escáner */
+    /* Estilos del Escáner */
     #scanner-container {
       display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-      background:rgba(0,0,0,0.85); z-index:9999; flex-direction:column; 
+      background:rgba(0,0,0,0.9); z-index:9999; flex-direction:column; 
       align-items:center; justify-content:center;
     }
-    #reader { width: 90%; max-width: 450px; background: white; border-radius: 15px; overflow: hidden; }
-    
+    #reader { width: 90%; max-width: 500px; background:white; border-radius:12px; overflow:hidden; }
   </style>
 </head>
 <body>
@@ -117,7 +114,7 @@
     <div id="reader"></div>
     <button onclick="stopScanner()" class="btn btn-primary" style="margin-top:20px; background: #ef4444;">❌ Cancelar Escaneo</button>
   </div>
-  
+
   <main class="app">
     <header>
       <h1>ALMACÉN DE ETIQUETAS CQ</h1>
@@ -130,14 +127,14 @@
         <div class="card-opt" onclick="showScreen('vert')">
           <div>
             <h3>⚙️ Verticalizada</h3>
-            <p><strong>Dar de alta</strong> bobinas con el ID original de la Verticalizada.</p>
+            <p><strong>Dar de alta</strong> bobinas con el ID original de la Verticalizada. No imprime automáticamente ya que la bobina debería venir con rótulo de origen.</p>
           </div>
           <button class="btn btn-soft">Ingresar</button>
         </div>
         <div class="card-opt" onclick="showScreen('otros')">
           <div>
             <h3>📦 Otros Proveedores</h3>
-            <p><strong>Dar de alta</strong> bobinas de forma manual. Imprime automáticamente.</p>
+            <p><strong>Dar de alta</strong> bobinas de forma manual. Para proveedores externos. Imprime automáticamente.</p>
           </div>
           <button class="btn btn-soft">Ingresar</button>
         </div>
@@ -148,7 +145,7 @@
         <div class="card-opt" onclick="showScreen('reimpresion')">
           <div>
             <h3>🖨️ Reimpresión de Etiquetas</h3>
-            <p>Generar duplicados de rótulos ZPL para bobinas existentes.</p>
+            <p>Generar duplicados de rótulos ZPL para bobinas que <strong>ya existen</strong> en la base de datos, buscando por el ID de la misma.</p>
           </div>
           <button class="btn btn-outline" style="width: 100%;">Acceder</button>
         </div>
@@ -229,7 +226,7 @@
         <h2 style="margin: 5px 0 0 0; font-size: 1.5rem;">Reimpresión de Etiqueta</h2>
       </div>
       <div class="field">
-        <label>ID Único de Bobina</label>
+        <label>ID Único de Bobina (Ej.: CQ345, 00154...)</label>
         <div style="display:flex; gap:10px;">
           <input id="reimp-id" placeholder="Ej: CQ1234" style="flex:1" />
           <button type="button" onclick="startScanner('reimp-id')" class="btn btn-soft">📷</button>
@@ -256,9 +253,25 @@
     const FLOW_URL_IMPRIMIR_ZPL = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c243919e09ba455ba6e6d9264d0fe59a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-FI4sg6jlPGtJou_kFUSMISkhG9BQRkRvzEXbOd9dm0";
     const FLOW_URL_BUSCAR_ID = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/bb66bfd7422f443896757685f12699b8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=K9YH7cEz1zSDsx0hAVR4Q4LNjd2ppgs5QYZ9GeyBSjo";
 
-    let scanner;
+    let html5QrCode;
     const screens = { home: document.getElementById("screen-home"), otros: document.getElementById("screen-otros"), vert: document.getElementById("screen-vert"), reimpresion: document.getElementById("screen-reimpresion") };
     const btnHomeTop = document.getElementById("btn-home-top");
+
+    // LÓGICA RETORNO DE QRBOT
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      const target = params.get('target');
+      const code = params.get('code');
+      if (target && code) {
+        const input = document.getElementById(target);
+        if (input) {
+          input.value = code.toUpperCase();
+          if(target === 'vert-sku') document.getElementById('btn-vert-cargar-info').click();
+          if(target === 'reimp-id') document.getElementById('btn-reimp-buscar').click();
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    });
 
     function showScreen(name) {
       Object.entries(screens).forEach(([key, el]) => el.classList.toggle("active", key === name));
@@ -266,34 +279,6 @@
       if(name === "otros") setTodayDate("otros-fecha");
     }
 
-    // --- LÓGICA ESCÁNER ---
-    async function startScanner(targetId) {
-      document.getElementById('scanner-container').style.display = 'flex';
-      scanner = new Html5Qrcode("reader");
-      const config = { 
-    fps: 20, // Aumentamos los frames para capturar más rápido
-    qrbox: { width: 350, height: 150 }, 
-    formatsToSupport: [ 
-        Html5QrcodeSupportedFormats.CODE_128
-    ] 
-  };
-      try {
-        await scanner.start({ facingMode: "environment" }, config, (text) => {
-          document.getElementById(targetId).value = text.toUpperCase();
-          if(window.navigator.vibrate) window.navigator.vibrate(100);
-          stopScanner();
-          // Auto-trigger si es búsqueda
-          if(targetId === 'vert-sku') document.getElementById('btn-vert-cargar-info').click();
-          if(targetId === 'reimp-id') document.getElementById('btn-reimp-buscar').click();
-        });
-      } catch (err) { stopScanner(); alert("Error cámara: " + err); }
-    }
-
-    function stopScanner() {
-      if(scanner) scanner.stop().finally(() => { document.getElementById('scanner-container').style.display = 'none'; });
-      else document.getElementById('scanner-container').style.display = 'none';
-    }
-    
     btnHomeTop.addEventListener("click", () => showScreen("home"));
 
     function setTodayDate(id) {
@@ -315,30 +300,29 @@
       return { ok: isOk, data };
     }
 
-   // --- OTROS ---
-document.getElementById("btn-otros-crear").addEventListener("click", async () => {
-  const st = document.getElementById("status-otros");
-  
-  // Capturamos los datos limpioS
+    // --- LÓGICA DE ESCANEO (QRBOT) ---
+    function startScanner(targetId) {
+      const urlRetorno = window.location.href.split('?')[0];
+      const qrbotLink = `qrbot://x-callback-url/scan?x-success=${encodeURIComponent(urlRetorno + "?target=" + targetId + "&code={code}")}`;
+      window.location.href = qrbotLink;
+    }
 
-  const payload = {
-    codigo: document.getElementById("otros-ifr").value.trim().toUpperCase(),
-    cantidadPorBobina: parseInt(document.getElementById("otros-cantidad").value),
-    proveedor: document.getElementById("otros-proveedor").value,
-    fechaIngreso: document.getElementById("otros-fecha").value,
-    ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "",
-    numeroBobinas: parseInt(document.getElementById("otros-num-bobinas").value)
-  };
-
-  setStatus(st, "ok", "Procesando en SharePoint e Impresora...");
-  const { ok, data } = await llamarPOST(FLOW_URL_CREAR_OTROS, payload);
-  
-  if(ok) {
-    setStatus(st, "ok", `<strong>Bobinas Creadas:</strong> ${data.ids ? data.ids.join(", ") : "OK"}<br><br><strong>Impresiones creadas en carpeta</strong>`);
-  } else {
-    setStatus(st, "err", "Error al procesar la solicitud.");
-  }
-});
+    // --- OTROS ---
+    document.getElementById("btn-otros-crear").addEventListener("click", async () => {
+      const st = document.getElementById("status-otros");
+      const payload = {
+        codigo: document.getElementById("otros-ifr").value.trim().toUpperCase(),
+        cantidadPorBobina: parseInt(document.getElementById("otros-cantidad").value),
+        proveedor: document.getElementById("otros-proveedor").value,
+        fechaIngreso: document.getElementById("otros-fecha").value,
+        ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "",
+        numeroBobinas: parseInt(document.getElementById("otros-num-bobinas").value)
+      };
+      setStatus(st, "ok", "Procesando en SharePoint e Impresora...");
+      const { ok, data } = await llamarPOST(FLOW_URL_CREAR_OTROS, payload);
+      if(ok) setStatus(st, "ok", `<strong>Bobinas Creadas:</strong> ${data.ids ? data.ids.join(", ") : "OK"}<br><br><strong>Impresiones creadas en carpeta</strong>`);
+      else setStatus(st, "err", "Error al procesar la solicitud.");
+    });
 
     // --- VERTICALIZADA ---
     document.getElementById("btn-vert-cargar-info").addEventListener("click", async () => {
@@ -356,53 +340,39 @@ document.getElementById("btn-otros-crear").addEventListener("click", async () =>
       } else setStatus(st, "err", "SKU no encontrado.");
     });
 
-
-document.getElementById("btn-vert-crear").addEventListener("click", async () => {
-  const st = document.getElementById("status-vert");
-  const payload = {
-    sku: document.getElementById("vert-sku").value.trim().toUpperCase(),
-    codigo: document.getElementById("vert-ifr").value,
-    cantidadPorBobina: parseInt(document.getElementById("vert-cantidad").value),
-    proveedor: "VERTICALIZADA",
-    fecha: document.getElementById("vert-fecha").value, // <--- ESTO DEBE SER ASÍ
-    ubicacion: document.getElementById("vert-ubicacion").value.trim().toUpperCase() || "",
-    descripcion: document.getElementById("vert-descripcion").value,
-    numeroBobinas: 1
-  };
-  // ... resto del código igual
-
-    setStatus(st, "ok", "Confirmando registro...");
-    const { ok } = await llamarPOST(FLOW_URL_CREAR_VERT, payload);
-    if(ok) setStatus(st, "ok", "✅ Bobina dada de alta correctamente.");
-    else setStatus(st, "err", "Error en el alta de bobina.");
-});
-
-   document.getElementById("btn-vert-imprimir").addEventListener("click", async () => {
-    const id = document.getElementById("vert-sku").value;
-    const cod = document.getElementById("vert-ifr").value;
-    const desc = document.getElementById("vert-descripcion").value;
-    const fechaRaw = document.getElementById("vert-fecha").value; // Viene como 2025-11-03
-
-    if(!cod) return;
-
-    // --- FORMATEO DE FECHA ---
-    let fechaFormateada = fechaRaw;
-    if (fechaRaw && fechaRaw.includes('-')) {
-        const [y, m, d] = fechaRaw.split('-');
-        fechaFormateada = `${parseInt(d)}-${parseInt(m)}-${y}`; // Resultado: 3-11-2025
-    }
-
-    setStatus(document.getElementById("status-vert"), "ok", "Enviando orden de impresión...");
-    
-    await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { 
-        cod: cod, 
-        desc: desc, 
-        fecha: fechaFormateada, // Enviamos la fecha formateada
-        id_unico: id 
+    document.getElementById("btn-vert-crear").addEventListener("click", async () => {
+      const st = document.getElementById("status-vert");
+      const payload = {
+        sku: document.getElementById("vert-sku").value.trim().toUpperCase(),
+        codigo: document.getElementById("vert-ifr").value,
+        cantidadPorBobina: parseInt(document.getElementById("vert-cantidad").value),
+        proveedor: "VERTICALIZADA",
+        fecha: document.getElementById("vert-fecha").value,
+        ubicacion: document.getElementById("vert-ubicacion").value.trim().toUpperCase() || "",
+        descripcion: document.getElementById("vert-descripcion").value,
+        numeroBobinas: 1
+      };
+      setStatus(st, "ok", "Confirmando registro...");
+      const { ok } = await llamarPOST(FLOW_URL_CREAR_VERT, payload);
+      if(ok) setStatus(st, "ok", "✅ Bobina dada de alta correctamente.");
+      else setStatus(st, "err", "Error en el alta de bobina.");
     });
-    
-    setStatus(document.getElementById("status-vert"), "ok", "✅ Impresión enviada.");
-});
+
+    document.getElementById("btn-vert-imprimir").addEventListener("click", async () => {
+      const id = document.getElementById("vert-sku").value;
+      const cod = document.getElementById("vert-ifr").value;
+      const desc = document.getElementById("vert-descripcion").value;
+      const fechaRaw = document.getElementById("vert-fecha").value;
+      if(!cod) return;
+      let fechaFormateada = fechaRaw;
+      if (fechaRaw && fechaRaw.includes('-')) {
+        const [y, m, d] = fechaRaw.split('-');
+        fechaFormateada = `${parseInt(d)}-${parseInt(m)}-${y}`;
+      }
+      setStatus(document.getElementById("status-vert"), "ok", "Enviando orden de impresión...");
+      await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { cod: cod, desc: desc, fecha: fechaFormateada, id_unico: id });
+      setStatus(document.getElementById("status-vert"), "ok", "✅ Impresión enviada.");
+    });
 
     // --- REIMPRESIÓN ---
     document.getElementById("btn-reimp-buscar").addEventListener("click", async () => {
@@ -436,15 +406,3 @@ document.getElementById("btn-vert-crear").addEventListener("click", async () => 
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
