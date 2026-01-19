@@ -270,8 +270,13 @@
     async function startScanner(targetId) {
       document.getElementById('scanner-container').style.display = 'flex';
       scanner = new Html5Qrcode("reader");
-      const config = { fps: 10, qrbox: { width: 280, height: 150 } };
-      
+      const config = { 
+    fps: 20, // Aumentamos los frames para capturar más rápido
+    qrbox: { width: 350, height: 150 }, 
+    formatsToSupport: [ 
+        Html5QrcodeSupportedFormats.CODE_128
+    ] 
+  };
       try {
         await scanner.start({ facingMode: "environment" }, config, (text) => {
           document.getElementById(targetId).value = text.toUpperCase();
@@ -431,6 +436,7 @@ document.getElementById("btn-vert-crear").addEventListener("click", async () => 
   </script>
 </body>
 </html>
+
 
 
 
