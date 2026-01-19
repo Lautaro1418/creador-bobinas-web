@@ -3,82 +3,104 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Almacén de Etiquetas CQ - Pro Scanner</title>
-  <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
+  <title>Almacén de Etiquetas CQ - Alta de Bobinas</title>
   <style>
     :root {
       --radius: 12px;
       --ink: #1f2937;
       --muted: #6b7280;
       --bg: #f3f4f6;
+      --ok: #065f46;
+      --err: #991b1b;
       --accent: #1e3a8a;
+      --accent-strong: #1d4ed8;
       --accent-soft: #f0f7ff;
     }
 
-    * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
-    body { margin: 0; background: #f8fafc; color: var(--ink); padding: 20px 10px; display: flex; justify-content: center; }
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+      background: #f8fafc; 
+      color: var(--ink); 
+      min-height: 100vh; 
+      padding: 20px 10px; 
+      display: flex; 
+      justify-content: center;
+      align-items: flex-start; /* Hace que no se estire al 100% de la altura */
+    }
 
-    .app { width: 100%; max-width: 850px; background: white; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); padding: 24px; }
+    .app { 
+      width: 100%; 
+      max-width: 850px; 
+      background: white; 
+      border-radius: 20px; 
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); 
+      padding: 24px;
+      height: auto; /* Ajuste automático al contenido */
+      margin-bottom: 40px;
+    }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; }
-    header h1 { margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--accent); text-transform: uppercase; }
+    header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 24px; 
+      padding-bottom: 15px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    header h1 { margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: -0.025em; }
     
-    #btn-home-top { border-radius: 8px; border: 1px solid #e2e8f0; background: white; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: none; color: var(--muted); }
+    #btn-home-top { 
+      border-radius: 8px; border: 1px solid #e2e8f0; background: white; padding: 8px 12px; 
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; display: none; color: var(--muted);
+    }
     #btn-home-top.active { display: flex; align-items: center; gap: 5px; }
 
     .screen { display: none; animation: fadeIn 0.3s ease; }
     .screen.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* DIFERENCIACIÓN DE PANELES */
+    .section-label { font-size: 0.75rem; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 10px; display: block; }
     .grid-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 30px; }
-    .card-opt { border-radius: var(--radius); border: 1px solid #e2e8f0; padding: 20px; cursor: pointer; transition: 0.2s; }
-    .card-opt:hover { border-color: var(--accent); transform: translateY(-2px); }
+    
+    .card-opt { 
+      border-radius: var(--radius); border: 1px solid #e2e8f0; background: white; 
+      padding: 20px; transition: all 0.2s; cursor: pointer; display: flex; flex-direction: column;
+    }
+    .card-opt:hover { border-color: var(--accent-strong); box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateY(-2px); }
+    .card-opt h3 { margin: 0 0 8px; font-size: 1.1rem; }
+    .card-opt p { margin: 0 0 16px; font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
 
     .btn { border-radius: 8px; cursor: pointer; font-size: 0.85rem; padding: 10px 20px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; border: none; }
     .btn-primary { background: var(--accent); color: white; width: 100%; }
-    .btn-soft { background: var(--accent-soft); color: var(--accent); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-soft { background: var(--accent-soft); color: var(--accent-strong); }
+    .btn-outline { background: transparent; border: 1px solid #e2e8f0; color: var(--muted); width: 100%; }
 
-    .form-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .form-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 10px; }
     @media (max-width: 600px) { .form-container { grid-template-columns: 1fr; } }
 
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-    .field input { border-radius: 8px; border: 1px solid #d1d5db; padding: 10px 12px; font-size: 0.9rem; }
-    input[readonly] { background: #f8fafc; color: #64748b; }
+    .field label span.req { color: #ef4444; }
+    .field input, .field select { 
+      border-radius: 8px; border: 1px solid #d1d5db; padding: 10px 12px; font-size: 0.9rem; background: #ffffff;
+    }
+    .field input[readonly] { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
 
-    .status { margin-top: 20px; font-size: 0.85rem; padding: 14px; border-radius: var(--radius); display: none; }
+    .status { margin-top: 20px; font-size: 0.85rem; padding: 14px; border-radius: var(--radius); display: none; line-height: 1.6; }
     .status.visible { display: block; }
     .status.ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
     .status.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
-    /* --- OVERLAY DEL ESCÁNER QUAGGA --- */
-    #scanner-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;
-    }
-    #interactive.viewport {
-      width: 100%; max-width: 500px; height: 300px; background: #000; border-radius: 12px; overflow: hidden; position: relative;
-    }
-    #interactive.viewport canvas, #interactive.viewport video {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
-    }
-    /* Línea de escaneo roja */
-    .scanner-laser {
-      position: absolute; top: 50%; left: 10%; width: 80%; height: 2px;
-      background: rgba(255, 0, 0, 0.5); box-shadow: 0 0 8px red; z-index: 10;
-    }
+    .section-divider { grid-column: 1 / -1; margin: 10px 0; font-size: 0.7rem; font-weight: 800; color: #94a3b8; display: flex; align-items: center; gap: 10px; }
+    .section-divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
   </style>
 </head>
 <body>
-
-  <div id="scanner-overlay">
-    <div style="color:white; margin-bottom:15px; font-weight:bold;">ENFOQUE EL CÓDIGO DE BARRAS</div>
-    <div id="interactive" class="viewport">
-      <div class="scanner-laser"></div>
-    </div>
-    <button onclick="stopScanner()" class="btn btn-primary" style="margin-top:20px; background:#ef4444; width:auto;">❌ CANCELAR</button>
-  </div>
-
   <main class="app">
     <header>
       <h1>ALMACÉN DE ETIQUETAS CQ</h1>
@@ -86,122 +108,277 @@
     </header>
 
     <section id="screen-home" class="screen active">
+      <span class="section-label">MÓDULO DE INGRESOS</span>
       <div class="grid-options">
         <div class="card-opt" onclick="showScreen('vert')">
-          <h3>⚙️ Verticalizada</h3>
-          <p>Alta de bobinas por SKU. Lectura rápida de Code 128.</p>
+          <div>
+            <h3>⚙️ Verticalizada</h3>
+            <p><strong>Dar de alta</strong> bobinas con el ID original de la Verticalizada. No imprime automáticamente ya que la bobina debería venir con rótulo de origen.</p>
+          </div>
           <button class="btn btn-soft">Ingresar</button>
         </div>
         <div class="card-opt" onclick="showScreen('otros')">
-          <h3>📦 Otros Proveedores</h3>
-          <p>Entrada manual y etiquetas para externos.</p>
+          <div>
+            <h3>📦 Otros Proveedores</h3>
+            <p><strong>Dar de alta</strong> bobinas de forma manual. Para proveedores externos. Imprime automáticamente.</p>
+          </div>
           <button class="btn btn-soft">Ingresar</button>
         </div>
-        <div class="card-opt" onclick="showScreen('reimpresion')" style="grid-column: 1/-1;">
-          <h3>🖨️ Reimpresión</h3>
-          <p>Generar duplicados de rótulos por ID.</p>
-          <button class="btn btn-outline" style="width:100%; border:1px solid #ddd">Acceder</button>
+      </div>
+
+      <span class="section-label">MÓDULO DE MANTENIMIENTO</span>
+      <div class="grid-options" style="grid-template-columns: 1fr;">
+        <div class="card-opt" onclick="showScreen('reimpresion')">
+          <div>
+            <h3>🖨️ Reimpresión de Etiquetas</h3>
+            <p>Generar duplicados de rótulos ZPL para bobinas que <strong>ya existen</strong> en la base de datos, buscando por el ID de la misma.</p>
+          </div>
+          <button class="btn btn-outline" style="width: 100%;">Acceder</button>
         </div>
       </div>
     </section>
 
     <section id="screen-otros" class="screen">
-      <h2>Otros Proveedores</h2>
-      <div class="field">
-        <label>IFR / CÓDIGO</label>
-        <div style="display:flex; gap:10px;">
-          <input id="otros-ifr" style="flex:1" />
-          <button type="button" onclick="startScanner('otros-ifr')" class="btn btn-soft">📷</button>
-        </div>
+      <div style="margin-bottom: 20px;">
+        <span style="color: var(--accent); font-weight: 800; font-size: 0.9rem;">ENTRADA MANUAL</span>
+        <h2 style="margin: 5px 0 0 0; font-size: 1.5rem;">Otros Proveedores</h2>
       </div>
-      </section>
+      <form id="form-otros">
+        <div class="form-container">
+          <div class="field"><label>IFR <span class="req">*</span></label><input id="otros-ifr" required /></div>
+          <div class="field"><label>Cantidad <span class="req">*</span></label><input id="otros-cantidad" type="number" step="0.01" required /></div>
+          <div class="field">
+            <label>Proveedor <span class="req">*</span></label>
+            <select id="otros-proveedor" required>
+              <option value="" disabled selected>Seleccione...</option>
+              <option value="STAMPA">STAMPA</option>
+              <option value="ETHIPRINT">ETHIPRINT</option>
+              <option value="ALL4LABELS">ALL4LABELS</option>
+              <option value="OTRO">OTRO</option>
+            </select>
+          </div>
+          <div class="field"><label>Fecha <span class="req">*</span></label><input id="otros-fecha" type="date" required /></div>
+          <div class="field"><label>Cant. Bobinas <span class="req">*</span></label><input id="otros-num-bobinas" type="number" min="1" required /></div>
+          <div class="field"><label>Ubicación</label><input id="otros-ubicacion" placeholder="Opcional..." /></div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:12px;">
+          <button type="button" id="btn-otros-crear" class="btn btn-primary" style="flex:2">✅ Crear Bobinas e Imprimir</button>
+          <button type="reset" class="btn btn-secondary" style="flex:1">Limpiar</button>
+        </div>
+        <div id="status-otros" class="status"></div>
+      </form>
+    </section>
 
     <section id="screen-vert" class="screen">
-      <h2>Verticalizada</h2>
+      <div style="margin-bottom: 20px;">
+        <span style="color: var(--accent); font-weight: 800; font-size: 0.9rem;">FLUJO AUTOMÁTICO</span>
+        <h2 style="margin: 5px 0 0 0; font-size: 1.5rem;">Verticalizada</h2>
+      </div>
       <div class="field">
-        <label>Escanear SKU de Bobina</label>
+        <label>Escanear SKU de Bobina <span class="req">*</span></label>
         <div style="display:flex; gap:10px;">
-          <input id="vert-sku" style="flex:1" />
-          <button type="button" onclick="startScanner('vert-sku')" class="btn btn-soft">📷</button>
-          <button type="button" id="btn-vert-cargar-info" class="btn btn-primary" style="width:auto">🔍</button>
+          <input id="vert-sku" placeholder="SKU único..." style="flex:1" />
+          <button type="button" id="btn-vert-cargar-info" class="btn btn-soft">Cargar Info</button>
         </div>
       </div>
-      <div id="status-vert" class="status"></div>
+      <form id="form-vert" style="margin-top:20px;">
+        <div class="section-divider">DATOS RECUPERADOS</div>
+        <div class="form-container">
+          <div class="field"><label>IFR</label><input id="vert-ifr" readonly /></div>
+          <div class="field"><label>Cantidad</label><input id="vert-cantidad" readonly /></div>
+          <div class="field"><label>Fecha</label><input id="vert-fecha" readonly /></div>
+          <div class="field"><label>Proveedor</label><input id="vert-proveedor" value="VERTICALIZADA" readonly /></div>
+          <div class="field" style="grid-column: 1 / -1;"><label>Descripción</label><input id="vert-descripcion" readonly /></div>
+          <div class="field" style="grid-column: 1 / -1;"><label>Ubicación Manual</label><input id="vert-ubicacion" placeholder="Ej: ESTANTERÍA A-1" /></div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:12px;">
+          <button type="button" id="btn-vert-crear" class="btn btn-primary" style="flex:2">✅ Confirmar Alta</button>
+          <button type="button" id="btn-vert-imprimir" class="btn btn-outline" style="flex:1">🖨️ Solo Imprimir</button>
+        </div>
+        <div id="status-vert" class="status"></div>
+      </form>
     </section>
 
     <section id="screen-reimpresion" class="screen">
-      <h2>Reimpresión</h2>
+      <div style="margin-bottom: 20px;">
+        <span style="color: var(--accent); font-weight: 800; font-size: 0.9rem;">MANTENIMIENTO</span>
+        <h2 style="margin: 5px 0 0 0; font-size: 1.5rem;">Reimpresión de Etiqueta</h2>
+      </div>
       <div class="field">
-        <label>ID de Bobina</label>
+        <label>ID Único de Bobina (Ej.: CQ345, 00154000000002327365, etc.)</label>
         <div style="display:flex; gap:10px;">
-          <input id="reimp-id" style="flex:1" />
-          <button type="button" onclick="startScanner('reimp-id')" class="btn btn-soft">📷</button>
-          <button type="button" id="btn-reimp-buscar" class="btn btn-primary" style="width:auto">🔍</button>
+          <input id="reimp-id" placeholder="Ej: CQ1234" style="flex:1" />
+          <button type="button" id="btn-reimp-buscar" class="btn btn-soft">🔍 Buscar</button>
         </div>
       </div>
-      </section>
+      <div id="reimp-result" style="margin-top:20px; display:none;">
+        <div class="section-divider">INFORMACIÓN ENCONTRADA</div>
+        <div class="form-container">
+          <div class="field"><label>IFR</label><input id="reimp-ifr" readonly /></div>
+          <div class="field"><label>Fecha</label><input id="reimp-fecha" readonly /></div>
+          <div class="field" style="grid-column: 1 / -1;"><label>Descripción</label><input id="reimp-desc" readonly /></div>
+        </div>
+        <button type="button" id="btn-reimp-imprimir" class="btn btn-primary" style="margin-top:20px;">🖨️ Mandar a Impresora</button>
+      </div>
+      <div id="status-reimp" class="status"></div>
+    </section>
   </main>
 
   <script>
-    // --- CONFIGURACIÓN DE ESCÁNER (QUAGGA2) ---
-    let currentTargetInput = null;
+    const FLOW_URL_CREAR_OTROS = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a3aa1e84c2c84404ab6a7f928707e025/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=AYJPbL7RoJjCCgMPnRcoWPHOgQcEh_gGMetpr6z5h3k";
+    const FLOW_URL_CREAR_VERT = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/13b36bcf579d431f81f964b55909950e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=llG5XyDdjYuESJWq9CN-uKKJQ8mHeZUlMY0FbKdNnB0";
+    const FLOW_URL_VERTICALIZADA_INFO = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fe0015c3370a4e4485b1174a1235a4df/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=T4OsXa8va0paJ_DPD4DmbsdDNdVk-2LMh618K1ayt3Y";
+    const FLOW_URL_IMPRIMIR_ZPL = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c243919e09ba455ba6e6d9264d0fe59a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-FI4sg6jlPGtJou_kFUSMISkhG9BQRkRvzEXbOd9dm0";
+    const FLOW_URL_BUSCAR_ID = "https://defaultd83e43d1620044fbb4f6a908d91c2e.22.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/bb66bfd7422f443896757685f12699b8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=K9YH7cEz1zSDsx0hAVR4Q4LNjd2ppgs5QYZ9GeyBSjo";
 
-    function startScanner(targetId) {
-      currentTargetInput = targetId;
-      document.getElementById('scanner-overlay').style.display = 'flex';
-
-      Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: document.querySelector('#interactive'),
-          constraints: {
-            facingMode: "environment", // Cámara trasera
-            aspectRatio: { min: 1, max: 2 }
-          },
-        },
-        locator: {
-          patchSize: "medium",
-          halfSample: true
-        },
-        decoder: {
-          readers: ["code_128_reader"] // Solo Code 128 para velocidad suprema
-        },
-        locate: true
-      }, function(err) {
-        if (err) { alert("Error cámara: " + err); return; }
-        Quagga.start();
-      });
-
-      // Al detectar código
-      Quagga.onDetected((result) => {
-        const code = result.codeResult.code;
-        if (code) {
-          document.getElementById(currentTargetInput).value = code.toUpperCase();
-          if (navigator.vibrate) navigator.vibrate(100);
-          stopScanner();
-          // Auto-busqueda
-          if(currentTargetInput === 'vert-sku') document.getElementById('btn-vert-cargar-info').click();
-          if(currentTargetInput === 'reimp-id') document.getElementById('btn-reimp-buscar').click();
-        }
-      });
-    }
-
-    function stopScanner() {
-      Quagga.stop();
-      document.getElementById('scanner-overlay').style.display = 'none';
-      currentTargetInput = null;
-    }
-
-    // --- LÓGICA DE NAVEGACIÓN ---
     const screens = { home: document.getElementById("screen-home"), otros: document.getElementById("screen-otros"), vert: document.getElementById("screen-vert"), reimpresion: document.getElementById("screen-reimpresion") };
+    const btnHomeTop = document.getElementById("btn-home-top");
+
     function showScreen(name) {
       Object.entries(screens).forEach(([key, el]) => el.classList.toggle("active", key === name));
-      document.getElementById("btn-home-top").classList.toggle("active", name !== "home");
+      btnHomeTop.classList.toggle("active", name !== "home");
+      if(name === "otros") setTodayDate("otros-fecha");
     }
-    document.getElementById("btn-home-top").addEventListener("click", () => showScreen("home"));
 
-    // (Pega aquí tus funciones llamarPOST y EventListeners de los flujos que ya tenías)
+    btnHomeTop.addEventListener("click", () => showScreen("home"));
+
+    function setTodayDate(id) {
+      const input = document.getElementById(id);
+      if (input && !input.value) input.value = new Date().toISOString().split('T')[0];
+    }
+
+    function setStatus(el, type, msg) {
+      el.classList.remove("ok", "err", "visible");
+      if (!msg) return;
+      el.classList.add("visible", type);
+      el.innerHTML = msg;
+    }
+
+    async function llamarPOST(url, payload) {
+      const resp = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const isOk = resp.status >= 200 && resp.status < 300;
+      let data = {}; try { data = await resp.json(); } catch(e) {}
+      return { ok: isOk, data };
+    }
+
+   // --- OTROS ---
+document.getElementById("btn-otros-crear").addEventListener("click", async () => {
+  const st = document.getElementById("status-otros");
+  
+  // Capturamos los datos limpioS
+
+  const payload = {
+    codigo: document.getElementById("otros-ifr").value.trim().toUpperCase(),
+    cantidadPorBobina: parseInt(document.getElementById("otros-cantidad").value),
+    proveedor: document.getElementById("otros-proveedor").value,
+    fechaIngreso: document.getElementById("otros-fecha").value,
+    ubicacion: document.getElementById("otros-ubicacion").value.trim().toUpperCase() || "",
+    numeroBobinas: parseInt(document.getElementById("otros-num-bobinas").value)
+  };
+
+  setStatus(st, "ok", "Procesando en SharePoint e Impresora...");
+  const { ok, data } = await llamarPOST(FLOW_URL_CREAR_OTROS, payload);
+  
+  if(ok) {
+    setStatus(st, "ok", `<strong>Bobinas Creadas:</strong> ${data.ids ? data.ids.join(", ") : "OK"}<br><br><strong>Impresiones creadas en carpeta</strong>`);
+  } else {
+    setStatus(st, "err", "Error al procesar la solicitud.");
+  }
+});
+
+    // --- VERTICALIZADA ---
+    document.getElementById("btn-vert-cargar-info").addEventListener("click", async () => {
+      const sku = document.getElementById("vert-sku").value.trim();
+      const st = document.getElementById("status-vert");
+      if(!sku) return;
+      setStatus(st, "ok", "Consultando base de datos...");
+      const { ok, data } = await llamarPOST(FLOW_URL_VERTICALIZADA_INFO, { codigo: sku });
+      if(ok && data.ok) {
+        document.getElementById("vert-ifr").value = data.codigo;
+        document.getElementById("vert-descripcion").value = data.descripcion;
+        document.getElementById("vert-cantidad").value = data.cantidadSugerida;
+        document.getElementById("vert-fecha").value = data.fecha;
+        setStatus(st, "ok", "Información recuperada con éxito.");
+      } else setStatus(st, "err", "SKU no encontrado.");
+    });
+
+
+document.getElementById("btn-vert-crear").addEventListener("click", async () => {
+  const st = document.getElementById("status-vert");
+  const payload = {
+    sku: document.getElementById("vert-sku").value.trim().toUpperCase(),
+    codigo: document.getElementById("vert-ifr").value,
+    cantidadPorBobina: parseInt(document.getElementById("vert-cantidad").value),
+    proveedor: "VERTICALIZADA",
+    fecha: document.getElementById("vert-fecha").value, // <--- ESTO DEBE SER ASÍ
+    ubicacion: document.getElementById("vert-ubicacion").value.trim().toUpperCase() || "",
+    descripcion: document.getElementById("vert-descripcion").value,
+    numeroBobinas: 1
+  };
+  // ... resto del código igual
+
+    setStatus(st, "ok", "Confirmando registro...");
+    const { ok } = await llamarPOST(FLOW_URL_CREAR_VERT, payload);
+    if(ok) setStatus(st, "ok", "✅ Bobina dada de alta correctamente.");
+    else setStatus(st, "err", "Error en el alta de bobina.");
+});
+
+   document.getElementById("btn-vert-imprimir").addEventListener("click", async () => {
+    const id = document.getElementById("vert-sku").value;
+    const cod = document.getElementById("vert-ifr").value;
+    const desc = document.getElementById("vert-descripcion").value;
+    const fechaRaw = document.getElementById("vert-fecha").value; // Viene como 2025-11-03
+
+    if(!cod) return;
+
+    // --- FORMATEO DE FECHA ---
+    let fechaFormateada = fechaRaw;
+    if (fechaRaw && fechaRaw.includes('-')) {
+        const [y, m, d] = fechaRaw.split('-');
+        fechaFormateada = `${parseInt(d)}-${parseInt(m)}-${y}`; // Resultado: 3-11-2025
+    }
+
+    setStatus(document.getElementById("status-vert"), "ok", "Enviando orden de impresión...");
+    
+    await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { 
+        cod: cod, 
+        desc: desc, 
+        fecha: fechaFormateada, // Enviamos la fecha formateada
+        id_unico: id 
+    });
+    
+    setStatus(document.getElementById("status-vert"), "ok", "✅ Impresión enviada.");
+});
+
+    // --- REIMPRESIÓN ---
+    document.getElementById("btn-reimp-buscar").addEventListener("click", async () => {
+      const id = document.getElementById("reimp-id").value.trim().toUpperCase();
+      const st = document.getElementById("status-reimp");
+      if(!id) return;
+      setStatus(st, "ok", "Buscando ID en SharePoint...");
+      const { ok, data } = await llamarPOST(FLOW_URL_BUSCAR_ID, { id: id });
+      if(ok && data.encontrado) {
+        document.getElementById("reimp-ifr").value = data.codigo;
+        document.getElementById("reimp-desc").value = data.descripcion;
+        document.getElementById("reimp-fecha").value = data.fecha;
+        document.getElementById("reimp-result").style.display = "block";
+        setStatus(st, "ok", "Registro encontrado.");
+      } else setStatus(st, "err", "El ID no existe o hubo un error.");
+    });
+
+    document.getElementById("btn-reimp-imprimir").addEventListener("click", async () => {
+      const id = document.getElementById("reimp-id").value.trim();
+      setStatus(document.getElementById("status-reimp"), "ok", "Imprimiendo duplicado...");
+      await llamarPOST(FLOW_URL_IMPRIMIR_ZPL, { 
+        cod: document.getElementById("reimp-ifr").value, 
+        desc: document.getElementById("reimp-desc").value, 
+        fecha: document.getElementById("reimp-fecha").value, 
+        id_unico: id 
+      });
+      setStatus(document.getElementById("status-reimp"), "ok", "✅ Reimpresión exitosa.");
+    });
+
+    document.querySelectorAll("input").forEach(i => i.addEventListener("input", () => { if(i.type==="text") i.value = i.value.toUpperCase(); }));
   </script>
 </body>
 </html>
